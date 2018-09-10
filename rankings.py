@@ -120,6 +120,7 @@ def recordMatch(players, rankings):
         rankings = newPlayers(rankings, winner, loser)
 
     print("Rankings updated!")
+    return rankings
 
 # Prints the rankings table to the screen
 def seeRankings(rankings):
@@ -127,14 +128,38 @@ def seeRankings(rankings):
 
     position = 1
     for player in rankings:
-        print(str(position) + ". " + player)
+        print str(position) + ". " + player
         position += 1
     print("")
 
+# Quits the program, updating the text files with the current players and rankings
+def quitProgram(players, rankings):
+    playersFile = open("storedPlayers.txt", "w")
+    for player in players:
+        playersFile.write(player + "\n")
+    playersFile.close()
+
+    rankingsFile = open("storedRankings.txt", "w")
+    for player in rankings:
+        rankingsFile.write(player + "\n")
+    rankingsFile.close()
+
+    print("Goodbye!")
+    exit()
+
 # Main method
 def main():
-    players = ["matt", "junaid", "mike", "james", "sandeep"]
-    rankings = ["matt", "junaid", "mike", "james", "sandeep"]
+    #players = ["matt", "junaid", "mike", "james", "sandeep"]
+    #rankings = ["matt", "junaid", "mike", "james", "sandeep"]
+
+    playersFile = open("storedPlayers.txt", "r")
+    players = playersFile.read().splitlines()
+    playersFile.close()
+    
+    rankingsFile = open("storedRankings.txt", "r")
+    rankings = rankingsFile.read().splitlines()
+    rankingsFile.close()
+
     print("Welcome to TZ Table Tennis (Copyright 2018. All rights reserved) \n")
     
     finished = False
@@ -155,12 +180,11 @@ def main():
         elif choice == "2":
             removePlayers(players, rankings)
         elif choice == "3":
-            recordMatch(players, rankings)
+            rankings = recordMatch(players, rankings)
         elif choice == "4":
             seeRankings(rankings)
         elif choice == "5":
-            print("Goodbye!")
-            exit()
+            quitProgram(players, rankings)
         else:
             print("Invalid input. \n")
         
