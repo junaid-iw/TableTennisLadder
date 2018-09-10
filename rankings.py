@@ -149,8 +149,6 @@ def quitProgram(players, rankings):
 
 # Main method
 def main():
-    #players = ["matt", "junaid", "mike", "james", "sandeep"]
-    #rankings = ["matt", "junaid", "mike", "james", "sandeep"]
 
     playersFile = open("storedPlayers.txt", "r")
     players = playersFile.read().splitlines()
