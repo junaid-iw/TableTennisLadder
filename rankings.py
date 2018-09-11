@@ -31,84 +31,40 @@ def newWinner(rankings, winner, loser):
     return rankings
 
 # Called when the user chooses to add a new player. Allows the user to add multiple players.
-def addPlayers(players):
-    finished = False
+def addPlayersMenu(players):
 
-    while (not finished):
-        print("Please enter the name of the new player: \n")
-        newPlayer = raw_input()
-        print("")
+    while (True):
+        newPlayer = requestName("Please enter the name of the new player: \n")
 
         if (newPlayer in players):
             print("This player already exists.")
-            finished = anotherPlayerQuery(finished, "add")
         else:
-            players.append(newPlayer)
+            addPlayer(players, newPlayer)
             print("Player added!")
-            finished = anotherPlayerQuery(finished, "add")
+            
+        if askUserYNQuestion("Would you like to add another player?"):
+            return players
 
 # Removes players from both the players list and the rankings list
-def removePlayers(players, rankings):
-    finished = False
-
-    while (not finished):
-        print("Please enter the name of the player you want to remove: \n")
-        removedPlayer = raw_input()
-        print("")
+def removePlayersMenu(players, rankings):
+    while (True):
+        removedPlayer = requestName("Please enter the name of the player you want to remove: \n")
 
         if (removedPlayer not in players):
             print("This player is not in the league.")
-            finished = anotherPlayerQuery(finished, "remove")
         else:
-            players.remove(removedPlayer)
+            removePlayerFromPlayers(players, removedPlayer)
             if (removedPlayer in rankings):
-                rankings.remove(removedPlayer)
+                removePlayerFromRankings(rankings, removedPlayer)
             print("Player removed!")
-            finished = anotherPlayerQuery(finished, "remove")
+        if askUserYNQuestion("Would you ike to remove another player?"):
+            return players, rankings
 
-# Asks the user whether they want to add another user
-def anotherPlayerQuery(finished, addOrRemove):
-    finished2 = False
-    while (not finished2):
-        print("Would you like to " + addOrRemove + " another player? (y/n) \n")
-        choice = raw_input()
-        print("")
-        if choice == "y":
-            finished2 = True
-        elif choice == "n":
-            finished = True
-            finished2 = True
-        else:
-            print("Invalid input.")
-    return finished
- 
 # Allows the user to input a winner and loser of a match, and updates the rankings table
 # accordingly
-def recordMatch(players, rankings):
-    winner = ""
-    loser = ""
-    
-    finished = False
-    while(not finished):
-        print("Please enter the name of the match winner: \n")
-        winner = raw_input()
-        print("")
-
-        if (winner not in players):
-            print("This player is not in the league.")
-        else:
-            finished = True
-    
-    finished = False
-    while(not finished):
-        print("Please enter the name of the match loser: \n")
-        loser = raw_input()
-        print("")
-
-        if (loser not in players):
-            print("This player is not in the league.")
-        else:
-            finished = True
+def recordMatchMenu(players, rankings):
+    winner = requestWinnerOrLoser("winner", players)
+    loser = requestWinnerOrLoser("loser", players)
 
     if winner in rankings and loser in rankings:
         rankings = existingWin(rankings, winner, loser)
@@ -147,8 +103,49 @@ def quitProgram(players, rankings):
     print("Goodbye!")
     exit()
 
-def interactive(players, rankings):
+# Adds player to end of players list
+def addPlayer(players, newPlayer):
+    players.append(newPlayer)
 
+# Removes player from players list
+def removePlayerFromPlayers(players, playerToBeRemoved):
+    players.remove(playerToBeRemoved)
+
+# Removes player from rankings lists
+def removePlayerFromRankings(rankings, playerToBeRemoved):
+    rankings.remove(playerToBeRemoved)
+
+# Asks the user a yes/no question, returning false if anything
+# but 'y' is entered
+def askUserYNQuestion(question):
+    print(question + " (y/n) \n")
+    choice = raw_input()
+    print("")
+    if choice == "y":
+        return False
+    else:    # Stops the loop if anything but y entered
+        return True
+
+# Requests the name of a player from the user
+def requestName(prompt):
+    print(prompt)
+    player = raw_input()
+    print("")
+    return player
+
+# Requests a winner or a loser
+def requestWinnerOrLoser(winnerOrLoser, players):
+    while(True):
+        player = requestName("Please enter the name of the match " + winnerOrLoser + ": \n")
+
+        if (player not in players):
+            print("This player is not in the league.")
+        else:
+            return player
+
+def interactive(players, rankings):
+    players = readPlayers()
+    rankings = readRankings()
 
     print("Welcome to TZ Table Tennis (Copyright 2018. All rights reserved) \n")
     
@@ -166,11 +163,11 @@ def interactive(players, rankings):
         print("")
 
         if choice == "1":
-            addPlayers(players)
+            players = addPlayersMenu(players)
         elif choice == "2":
-            removePlayers(players, rankings)
+            players, rankings = removePlayersMenu(players, rankings)
         elif choice == "3":
-            rankings = recordMatch(players, rankings)
+            rankings = recordMatchMenu(players, rankings)
         elif choice == "4":
             seeRankings(rankings)
         elif choice == "5":
@@ -197,27 +194,27 @@ def clAddPlayers(players):
 
 # Method to record a match between two players, updating the rankings table, using
 # Unix-style interface
-def clRecordMatch():
+def clRecordMatch(players, rankings):
     if len(sys.argv) != 4:
         print("\n'-result' operator requires 2 parameters (name of winner, name of loser)\n")
         sys.exit(1)
-    
+
 
 
 def clSeeRankings(): 
     return
 
 def readPlayers():
-    playersFile = open("storedPlayers.txt", "r")
-    players = playersFile.read().splitlines()
-    playersFile.close()
-    return players
+    return readFile("storedPlayers.txt")
 
 def readRankings():
-    rankingsFile = open("storedRankings.txt", "r")
-    rankings = rankingsFile.read().splitlines()
-    rankingsFile.close()
-    return rankings
+    return readFile("storedRankings.txt")
+
+def readFile(filename):
+    myFile = open(filename, "r")
+    contents = myFile.read().splitlines()
+    myFile.close()
+    return contents
 
 def updatePlayers():
     return
@@ -235,12 +232,12 @@ def main():
         clSeeRankings()
         sys.exit(1)
 
-    if sys.argv[1] == "-interactive":
+    if sys.argv[1] == "--interactive":
         interactive(players, rankings)
     elif sys.argv[1] == "-add":
         clAddPlayers(players)
     elif sys.argv[1] == "-result":
-        clRecordMatch()
+        clRecordMatch(players, rankings)
     elif sys.argv[1] == "-rank":
         clSeeRankings()
     else:
