@@ -147,14 +147,7 @@ def quitProgram(players, rankings):
     print("Goodbye!")
     exit()
 
-def interactive():
-    playersFile = open("storedPlayers.txt", "r")
-    players = playersFile.read().splitlines()
-    playersFile.close()
-    
-    rankingsFile = open("storedRankings.txt", "r")
-    rankings = rankingsFile.read().splitlines()
-    rankingsFile.close()
+def interactive(players, rankings):
 
     print("Welcome to TZ Table Tennis (Copyright 2018. All rights reserved) \n")
     
@@ -184,10 +177,54 @@ def interactive():
         else:
             print("Invalid input. \n")
 
+# Method to add a new player using Unix-style interface
+def clAddPlayers(players):
+    if len(sys.argv) != 3:
+        print("\n'-add' operator requires 1 parameter (name of player to be added)\n")
+        sys.exit(1)
+    newPlayer = sys.argv[2]
+
+    if (newPlayer in players):
+        print("\nThis player already exists.\n")
+    else:
+        playersFile = open("storedPlayers.txt", "a")
+        playersFile.write(newPlayer)
+        playersFile.close()
+        print("\nPlayer added!\n")
+
+def clRecordMatch():
+    return
+
+def clSeeRankings(): 
+    return
+
+def updatePlayers():
+    return
+
+def updateRankings():
+    return
+
 # Main method
 def main():
+    playersFile = open("storedPlayers.txt", "r")
+    players = playersFile.read().splitlines()
+    playersFile.close()
+    
+    rankingsFile = open("storedRankings.txt", "r")
+    rankings = rankingsFile.read().splitlines()
+    rankingsFile.close()
+
     if sys.argv[1] == "-interactive":
-        interactive()
+        interactive(players, rankings)
+    elif sys.argv[1] == "-add":
+        clAddPlayers(players)
+    elif sys.argv[1] == "-result":
+        clRecordMatch()
+    elif sys.argv[1] == "-rank":
+        clSeeRankings()
+    else:
+        print("Invalid input")
+
     
         
 # def main():
