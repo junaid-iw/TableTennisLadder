@@ -147,9 +147,7 @@ def quitProgram(players, rankings):
     print("Goodbye!")
     exit()
 
-# Main method
-def main():
-
+def interactive():
     playersFile = open("storedPlayers.txt", "r")
     players = playersFile.read().splitlines()
     playersFile.close()
@@ -185,6 +183,12 @@ def main():
             quitProgram(players, rankings)
         else:
             print("Invalid input. \n")
+
+# Main method
+def main():
+    if sys.argv[1] == "-interactive":
+        interactive()
+    
         
 # def main():
 #     if len(sys.argv) != 3:
