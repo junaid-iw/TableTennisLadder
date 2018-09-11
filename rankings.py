@@ -149,6 +149,7 @@ def quitProgram(players, rankings):
 
 def interactive(players, rankings):
 
+
     print("Welcome to TZ Table Tennis (Copyright 2018. All rights reserved) \n")
     
     finished = False
@@ -182,6 +183,8 @@ def clAddPlayers(players):
     if len(sys.argv) != 3:
         print("\n'-add' operator requires 1 parameter (name of player to be added)\n")
         sys.exit(1)
+    
+    players = readPlayers()
     newPlayer = sys.argv[2]
 
     if (newPlayer in players):
@@ -192,11 +195,29 @@ def clAddPlayers(players):
         playersFile.close()
         print("\nPlayer added!\n")
 
+# Method to record a match between two players, updating the rankings table, using
+# Unix-style interface
 def clRecordMatch():
-    return
+    if len(sys.argv) != 4:
+        print("\n'-result' operator requires 2 parameters (name of winner, name of loser)\n")
+        sys.exit(1)
+    
+
 
 def clSeeRankings(): 
     return
+
+def readPlayers():
+    playersFile = open("storedPlayers.txt", "r")
+    players = playersFile.read().splitlines()
+    playersFile.close()
+    return players
+
+def readRankings():
+    rankingsFile = open("storedRankings.txt", "r")
+    rankings = rankingsFile.read().splitlines()
+    rankingsFile.close()
+    return rankings
 
 def updatePlayers():
     return
@@ -206,13 +227,13 @@ def updateRankings():
 
 # Main method
 def main():
-    playersFile = open("storedPlayers.txt", "r")
-    players = playersFile.read().splitlines()
-    playersFile.close()
     
-    rankingsFile = open("storedRankings.txt", "r")
-    rankings = rankingsFile.read().splitlines()
-    rankingsFile.close()
+    players = []
+    rankings = []
+    
+    if len(sys.argv) == 1:
+        clSeeRankings()
+        sys.exit(1)
 
     if sys.argv[1] == "-interactive":
         interactive(players, rankings)
