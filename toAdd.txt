@@ -1,0 +1,11 @@
+Control for winner + loser being same name
+
+Clear rankings
+
+Class structure
+
+Update tests
+
+Implement multiple tables
+
+FileHandler class?
