@@ -12,18 +12,19 @@ def addPlayersMenu(players):
 
         addPlayerIfNew(players, newPlayer)
             
-        if askUserYNQuestion("Would you like to add another player?"):
+        if not askUserYNQuestion("Would you like to add another player?"):
             return players
 
 # Removes players from both the players list and the leaderboard list
-def removePlayersMenu(players, leaderboard):
+def removePlayersMenu(playersList, leaderboard):
     while (True):
         removedPlayerName = requestName("Please enter the name of the player you want to remove: \n")
+        removedPlayer = Player(removedPlayerName)
 
-        removePlayerIfExists(players, leaderboard, removedPlayer)
+        removePlayerIfInPlayersTable(playersList, leaderboard, removedPlayer)
 
-        if askUserYNQuestion("Would you ike to remove another player?"):
-            return players, leaderboard
+        if not askUserYNQuestion("Would you ike to remove another player?"):
+            return playersList, leaderboard
 
 # Allows the user to input a winner and loser of a match, and updates the leaderboard table
 # accordingly
@@ -36,11 +37,12 @@ def recordMatchMenu(players, leaderboard):
     return leaderboard
 
 # Prints the leaderboard table to the screen
-def seeleaderboard(leaderboard):
+def seeLeaderboard(leaderboard):
     print("The current leaderboard are as follows: \n")
 
-    for position, player in enumerate(leaderboard, start=1):
-        print str(position) + ". " + player
+    players = leaderboard.getRankings()
+    for position, player in enumerate(players, start=1):
+        print str(position) + ". " + player.getName()
     print("")
 
 # Quits the program
@@ -80,22 +82,23 @@ def clInteractive(players, leaderboard):
         elif choice == "3":
             leaderboard = recordMatchMenu(players, leaderboard)
         elif choice == "4":
-            seeleaderboard(leaderboard)
+            seeLeaderboard(leaderboard)
         elif choice == "5":
             quitProgram()
         else:
             print("Invalid input. \n")
 
 # Adds a new player (Unix interface)
-def clAddPlayers(players):
+def clAddPlayers(playersTable):
     if len(sys.argv) != 3:
         print("\n'-add' operator requires 1 parameter (name of player to be added)\n")
         sys.exit(1)
     
-    players = readPlayers()
-    newPlayer = sys.argv[2]
+    playersTable = readPlayers()
+    newPlayerName = sys.argv[2]
+    newPlayer = Player(newPlayerName)
 
-    addPlayerIfNew(players, newPlayer)
+    addPlayerIfNew(playersTable, newPlayer)
 
 # Removes a player (Unix interface)
 def clRemovePlayers(players, leaderboard):
@@ -103,35 +106,35 @@ def clRemovePlayers(players, leaderboard):
         print("\n'-remove' operator requires 1 parameter (name of player to be removed)\n")
         sys.exit(1)
     
-    players = readPlayers()
+    playersTable = readPlayers()
     leaderboard = readLeaderboard()
-    removedPlayer = sys.argv[2]
+    removedPlayerName = sys.argv[2]
+    removedPlayer = Player(removedPlayerName)
 
-    removePlayerIfExists(players, leaderboard, removedPlayer)
+    removePlayerIfInPlayersTable(playersTable, leaderboard, removedPlayer)
     return
 
 # Records a match between two players, updating the leaderboard table (Unix interface)
-def clRecordMatch(players, leaderboard):
+def clRecordMatch(playersTable, leaderboard):
     if len(sys.argv) != 4:
         print("\n'-result' operator requires 2 parameters (name of winner, name of loser)\n")
         sys.exit(1)
     
-    players = readPlayers()
+    playersTable = readPlayers()
     leaderboard = readLeaderboard()
 
-    playersList = players.getPlayers()
     winner = Player(sys.argv[2])
     loser = Player(sys.argv[3])
 
-    if winner not in playersList and loser not in playersList:
+    if not playersTable.playerInTable(winner) and playersTable.playerInTable(loser):
         print("Neither player is part of this league")
-    elif winner not in playersList:
+    elif not playersTable.playerInTable(winner):
         print("The winner is not part of this league")
-    elif loser not in playersList:
+    elif not playersTable.playerInTable(loser):
         print("The loser is not part of this league")
     else:
         updateLeaderboardAfterMatch(winner, loser, leaderboard)
-        print("leaderboard updated!")
+        print("Leaderboard updated!")
 
 
 
@@ -142,44 +145,44 @@ def clSeeleaderboard():
         sys.exit(1)
     
     leaderboard = readLeaderboard()
-    seeleaderboard(leaderboard)
+    seeLeaderboard(leaderboard)
 
 
 
 
 
 # Adds a player to the players list, unless they are already in the players list
-def addPlayerIfNew(players, newPlayer):
-    if (newPlayer.getName() in players):
-            print("This player already exists.")
+def addPlayerIfNew(playersTable, newPlayer):
+    if playersTable.playerInTable(newPlayer):
+            print("This player already in the players list.")
     else:
-        addPlayer(players, newPlayer)
+        addPlayer(playersTable, newPlayer)
         print("Player added!")
 
 # Adds player to end of players list
-def addPlayer(players, newPlayer):
-    players.append(newPlayer.getName())
-    updatePlayers(players)
+def addPlayer(playersTable, newPlayer):
+    playersTable.addPlayer(newPlayer)
+    updatePlayersTable(playersTable)
 
 # Removes a player from the players list (and leaderboard list if they're in that list),
 # unless they are not in the players list
-def removePlayerIfExists(players, leaderboard, removedPlayer):
-    if (removedPlayer not in players):
-            print("This player is not in the league.")
+def removePlayerIfInPlayersTable(playersTable, leaderboard, removedPlayer):
+    if not playersTable.playerInTable(removedPlayer):
+            print("This player is not in the players list.")
     else:
-        removePlayerFromPlayers(players, removedPlayer)
-        if (removedPlayer in leaderboard):
+        removePlayerFromPlayersTable(playersTable, removedPlayer)
+        if leaderboard.playerInRankings(removedPlayer):
             removePlayerFromleaderboard(leaderboard, removedPlayer)
         print("Player removed!")
 
 # Removes player from players list
-def removePlayerFromPlayers(players, playerToBeRemoved):
-    players.remove(playerToBeRemoved)
-    updatePlayers(players)
+def removePlayerFromPlayersTable(playersTable, playerToBeRemoved):
+    playersTable.removePlayer(playerToBeRemoved)
+    updatePlayersTable(playersTable)
 
 # Removes player from leaderboard list
 def removePlayerFromleaderboard(leaderboard, playerToBeRemoved):
-    leaderboard.remove(playerToBeRemoved)
+    leaderboard.removePlayer(playerToBeRemoved)
     updateLeaderboard(leaderboard)
 
 # Asks the user a yes/no question, returning false if anything
@@ -189,9 +192,9 @@ def askUserYNQuestion(question):
     choice = raw_input()
     print("")
     if choice == "y":
-        return False
-    else:    # Stops the loop if anything but y entered
         return True
+    else:    # Stops the loop if anything but y entered
+        return False
 
 # Requests the name of a player from the user
 def requestName(prompt):
@@ -212,19 +215,9 @@ def requestWinnerOrLoser(winnerOrLoser, players):
 
 # Updates the leaderboard list based on a winner and loser of a match
 def updateLeaderboardAfterMatch(winner, loser, leaderboard):
-    leaderboardPlayers = leaderboard.getRankings()
-    if winner not in leaderboardPlayers:
-        leaderboard.append(winner)
     
-    if loser not in leaderboardPlayers:
-        leaderboard.append(loser)
     
-    winner_position = leaderboardPlayers.index(winner)
-    loser_position = leaderboardPlayers.index(loser)
-
-    if winner_position > loser_position:
-        leaderboardPlayers = leaderboard[:loser_position] + [winner] + leaderboard[loser_position:winner_position] + leaderboard[winner_position + 1:]
-        leaderboard.setRankings(leaderboardPlayers)
+    leaderboard.updateAfterMatch(winner, loser)
 
     updateLeaderboard(leaderboard)
     return leaderboard
@@ -253,16 +246,18 @@ def readFile(filename):
     myFile.close()
     return contents
 
-def updatePlayers(players):
+def updatePlayersTable(playersTable):
+    players = playersTable.getPlayers()
     updateFile("storedPlayers.txt", players)
 
 def updateLeaderboard(leaderboard):
-    updateFile("storedleaderboard.txt", leaderboard)
+    players = leaderboard.getRankings()
+    updateFile("storedLeaderboard.txt", players)
 
-def updateFile(filename, leaderboard):
+def updateFile(filename, players):
     myFile = open(filename, "w")
-    for player in leaderboard.getRankings():
-        myFile.write(player + "\n")
+    for player in players:
+        myFile.write(player.getName() + "\n")
     myFile.close()
 
 # Main method
