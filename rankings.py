@@ -58,7 +58,7 @@ def quitProgram():
 # Starts the interactive mode of the program
 def clInteractive(players, leaderboard):
     players = readPlayers()
-    leaderboard = readLeaderboard()
+    leaderboard = readLeaderboard("storedLeaderboard")
 
     print("Welcome to TZ Table Tennis (Copyright 2018. All rights reserved) \n")
     
@@ -102,16 +102,24 @@ def clAddPlayers(playersTable):
 
 # Removes a player (Unix interface)
 def clRemovePlayers(players, leaderboard):
-    if len(sys.argv) != 3:
-        print("\n'-remove' operator requires 1 parameter (name of player to be removed)\n")
+    if len(sys.argv) != 3 and len(sys.argv) != 4:
+        print("\n'-remove' operator requires either 1 or 2 parameters (see --help menu for details)\n")
         sys.exit(1)
     
     playersTable = readPlayers()
-    leaderboard = readLeaderboard()
+    
     removedPlayerName = sys.argv[2]
     removedPlayer = Player(removedPlayerName)
 
-    removePlayerIfInPlayersTable(playersTable, leaderboard, removedPlayer)
+    if not playersTable.playerInTable(removedPlayer):
+        print("This player is not in the players list.")
+    elif len(sys.argv) == 3:
+        removePlayerFromAll(playersTable, removedPlayer)
+    else:
+        leaderboardName = sys.argv[3]
+        leaderboard = readLeaderboard(leaderboardName)
+        removePlayerFromLeaderboardIfPresent(leaderboard, removedPlayer)
+    
     return
 
 # Records a match between two players, updating the leaderboard table (Unix interface)
@@ -121,7 +129,7 @@ def clRecordMatch(playersTable, leaderboard):
         sys.exit(1)
     
     playersTable = readPlayers()
-    leaderboard = readLeaderboard()
+    leaderboard = readLeaderboard("storedLeaderboard")
 
     winner = Player(sys.argv[2])
     loser = Player(sys.argv[3])
@@ -144,7 +152,7 @@ def clSeeleaderboard():
         print("\n'-result' operator requires no parameters\n")
         sys.exit(1)
     
-    leaderboard = readLeaderboard()
+    leaderboard = readLeaderboard("storedLeaderboard")
     seeLeaderboard(leaderboard)
 
 
@@ -156,33 +164,36 @@ def addPlayerIfNew(playersTable, newPlayer):
     if playersTable.playerInTable(newPlayer):
             print("This player already in the players list.")
     else:
-        addPlayer(playersTable, newPlayer)
-        print("Player added!")
-
-# Adds player to end of players list
-def addPlayer(playersTable, newPlayer):
-    playersTable.addPlayer(newPlayer)
-    updatePlayersTable(playersTable)
+        playersTable.addPlayer(newPlayer)
+        updatePlayersTable(playersTable)
+        print("Player added!")    
 
 # Removes a player from the players list (and leaderboard list if they're in that list),
 # unless they are not in the players list
-def removePlayerIfInPlayersTable(playersTable, leaderboard, removedPlayer):
-    if not playersTable.playerInTable(removedPlayer):
-            print("This player is not in the players list.")
-    else:
-        removePlayerFromPlayersTable(playersTable, removedPlayer)
+def removePlayerFromAll(playersTable, removedPlayer):
+    removePlayerFromPlayersTable(playersTable, removedPlayer)
+    
+    leaderboardNames = readLeaderboardNames()
+    for leaderboardName in leaderboardNames:
+        leaderboard = readLeaderboard(leaderboardName)
         if leaderboard.playerInRankings(removedPlayer):
-            removePlayerFromleaderboard(leaderboard, removedPlayer)
-        print("Player removed!")
+            removePlayerFromLeaderboard(leaderboard, removedPlayer)
+    print("Player removed from championship!")
 
-# Removes player from players list
-def removePlayerFromPlayersTable(playersTable, playerToBeRemoved):
-    playersTable.removePlayer(playerToBeRemoved)
+def removePlayerFromLeaderboardIfPresent(leaderboard, removedPlayer):
+    if leaderboard.playerInRankings(removedPlayer):
+        removePlayerFromLeaderboard(leaderboard, removedPlayer)
+    else:
+        print("This player is not in the specified leaderboard")
+
+# Removes player from players table
+def removePlayerFromPlayersTable(playersTable, removedPlayer):
+    playersTable.removePlayer(removedPlayer)
     updatePlayersTable(playersTable)
 
-# Removes player from leaderboard list
-def removePlayerFromleaderboard(leaderboard, playerToBeRemoved):
-    leaderboard.removePlayer(playerToBeRemoved)
+# Removes player from leaderboard
+def removePlayerFromLeaderboard(leaderboard, removedPlayer):
+    leaderboard.removePlayer(removedPlayer)
     updateLeaderboard(leaderboard)
 
 # Asks the user a yes/no question, returning false if anything
@@ -231,14 +242,18 @@ def readPlayers():
     playersTable = PlayersTable(players)
     return playersTable
 
-def readLeaderboard():
-    playerNames = readFile("storedLeaderboard.txt")
+def readLeaderboard(leaderboardName):
+    playerNames = readFile(leaderboardName + ".txt")
     players = []
     for name in playerNames:
         player = Player(name)
         players.append(player)
-    leaderboard = Leaderboard(players)
+    leaderboard = Leaderboard(leaderboardName, players)
     return leaderboard
+
+def readLeaderboardNames():
+    leaderboardNames = readFile("leaderboardNames.txt")
+    return leaderboardNames
 
 def readFile(filename):
     myFile = open(filename, "r")
@@ -252,7 +267,7 @@ def updatePlayersTable(playersTable):
 
 def updateLeaderboard(leaderboard):
     players = leaderboard.getRankings()
-    updateFile("storedLeaderboard.txt", players)
+    updateFile("storedLeaderboard", players)
 
 def updateFile(filename, players):
     myFile = open(filename, "w")

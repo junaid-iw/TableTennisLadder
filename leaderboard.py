@@ -1,9 +1,9 @@
 class Leaderboard:
-    def __init__(self, rankings):
+    def __init__(self, name, rankings):
         self.rankings = rankings
 
-    # def getName(self):
-    #     return self.name
+    def getName(self):
+        return self.name
     
     def getRankings(self):
         return self.rankings
@@ -11,8 +11,8 @@ class Leaderboard:
     def setRankings(self, newRankings):
         self.rankings = newRankings
     
-    # def setName(self, newName):
-    #     self.name = newName
+    def setName(self, newName):
+        self.name = newName
     
     def playerInRankings(self, player):
         if player in self.rankings:
