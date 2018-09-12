@@ -2,6 +2,8 @@ Control for winner + loser being same name
 
 Clear rankings
 
+Help menu
+
 Update tests
 
 Implement multiple tables
