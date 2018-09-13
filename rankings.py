@@ -147,8 +147,12 @@ def clRecordMatch(playersTable, leaderboard):
         updateLeaderboardAfterMatch(winner, loser, leaderboard)
         print("Leaderboard updated!")
 
+def defaultSeeLeaderboard():
+    leaderboard = getCurrentLeaderboard()
+    seeLeaderboard(leaderboard)
+
 # Prints the current leaderboard to the terminal (Unix interface)
-def clSeeleaderboard():
+def clSeeLeaderboard():
     if len(sys.argv) != 2:
         print("\n'--rank' operator requires no parameters\n")
         sys.exit(1)
@@ -362,7 +366,7 @@ def main():
     leaderboard = []
     
     if len(sys.argv) == 1:
-        clSeeleaderboard()
+        defaultSeeLeaderboard()
         sys.exit(1)
     operator = sys.argv[1]
     if operator == "--interactive":
@@ -376,7 +380,7 @@ def main():
     elif operator == "--result":
         clRecordMatch(players, leaderboard)
     elif operator == "--rank":
-        clSeeleaderboard()
+        clSeeLeaderboard()
     elif operator == "--change":
         clChangeLeaderboard()
     elif operator == "--new":
