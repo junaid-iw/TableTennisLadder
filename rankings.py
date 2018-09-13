@@ -282,10 +282,14 @@ def reorderLeaderboardNames(newCurrentLeaderboardName, leaderboardNames):
 # Prints the leaderboard table to the screen
 def seeLeaderboard(leaderboard):
     print(leaderboard.getName() +  ":\n")
-
+    
     players = leaderboard.getRankings()
-    for position, player in enumerate(players, start=1):
-        print str(position) + ". " + player.getName()
+    if len(players) == 0:
+        print("There are currently no players on this leaderboard")
+    else:
+        for position, player in enumerate(players, start=1):
+            print str(position) + ". " + player.getName()
+    
     print("")
 
 def getAllLeaderboards():
@@ -372,18 +376,21 @@ def updateHTML():
     allLeaderboards = getAllLeaderboards()
 
     for leaderboard in allLeaderboards:
+
         htmlString += '\n<div class="leaderboard">'
         htmlString += '\n<span style="position: relative; top: -80px; font-size: 150px;">&#x1F3C6;</span>'
         htmlString += '\n<h1 style="margin-top: -50px">'+ leaderboard.getName() +'</h1>'
         htmlString += '\n<div id="results">'
         
         players = leaderboard.getRankings()
+        if len(players) == 0:
+            htmlString += '<p>There are currently no players on this leaderboard</p>'
+        else:
+            htmlString += '\n<div class="row"><div style="margin: 0; padding: 0; float:left;">1.</div> <marquee width="190px">'+ players[0].getName() +'</marquee> <div style="vertical-align: middle; font-size: 26px; height: 44px; width: 44px; background-color: white; border-radius: 50px; float: right; margin: 0; padding: 0;"><p style="margin-top: 6px;">&#x1F3C6;</p></div></div>'
 
-        htmlString += '\n<div class="row"><div style="margin: 0; padding: 0; float:left;">1.</div> <marquee width="190px">'+ players[0].getName() +'</marquee> <div style="vertical-align: middle; font-size: 26px; height: 44px; width: 44px; background-color: white; border-radius: 50px; float: right; margin: 0; padding: 0;"><p style="margin-top: 6px;">&#x1F3C6;</p></div></div>'
-
-        for position, player in enumerate(players, start=1):
-            if not position == 1:
-                htmlString += '<div class="row"><div style="margin: 0; padding: 0; float:left;">' + str(position) + '.</div>' + player.getName() + '</div>'
+            for position, player in enumerate(players, start=1):
+                if not position == 1:
+                    htmlString += '<div class="row"><div style="margin: 0; padding: 0; float:left;">' + str(position) + '.</div>' + player.getName() + '</div>'
 
         htmlString += '\n</div>\n</div>'
 
