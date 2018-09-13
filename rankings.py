@@ -4,75 +4,75 @@ from playersTable import PlayersTable
 from leaderboard import Leaderboard
 
 
-# Called when the user chooses to add a new player. Allows the user to add multiple players.
-def addPlayersMenu(players):
-    while (True):
-        newPlayerName = requestName("Please enter the name of the new player: \n")
-        newPlayer = Player(newPlayerName)
+# # Called when the user chooses to add a new player. Allows the user to add multiple players.
+# def addPlayersMenu(players):
+#     while (True):
+#         newPlayerName = requestName("Please enter the name of the new player: \n")
+#         newPlayer = Player(newPlayerName)
 
-        addPlayerIfNew(players, newPlayer)
+#         addPlayerIfNew(players, newPlayer)
             
-        if not askUserYNQuestion("Would you like to add another player?"):
-            return players
+#         if not askUserYNQuestion("Would you like to add another player?"):
+#             return players
 
-# Removes players from both the players list and the leaderboard list
-def removePlayersMenu(playersList, leaderboard):
-    while (True):
-        removedPlayerName = requestName("Please enter the name of the player you want to remove: \n")
-        removedPlayer = Player(removedPlayerName)
+# # Removes players from both the players list and the leaderboard list
+# def removePlayersMenu(playersList, leaderboard):
+#     while (True):
+#         removedPlayerName = requestName("Please enter the name of the player you want to remove: \n")
+#         removedPlayer = Player(removedPlayerName)
 
-        removePlayerIfInPlayersTable(playersList, leaderboard, removedPlayer)
+#         removePlayerIfInPlayersTable(playersList, leaderboard, removedPlayer)
 
-        if not askUserYNQuestion("Would you ike to remove another player?"):
-            return playersList, leaderboard
+#         if not askUserYNQuestion("Would you ike to remove another player?"):
+#             return playersList, leaderboard
 
-# Allows the user to input a winner and loser of a match, and updates the leaderboard table
-# accordingly
-def recordMatchMenu(players, leaderboard):
-    winner = requestWinnerOrLoser("winner", players)
-    loser = requestWinnerOrLoser("loser", players)
-    leaderboard = updateLeaderboardAfterMatch(winner, loser, leaderboard)
+# # Allows the user to input a winner and loser of a match, and updates the leaderboard table
+# # accordingly
+# def recordMatchMenu(players, leaderboard):
+#     winner = requestWinnerOrLoser("winner", players)
+#     loser = requestWinnerOrLoser("loser", players)
+#     leaderboard = updateLeaderboardAfterMatch(winner, loser, leaderboard)
 
-    print("leaderboard updated!")
-    return leaderboard
+#     print("leaderboard updated!")
+#     return leaderboard
 
-# Quits the program
-def quitProgram():
-    print("Goodbye!")
-    exit()
+# # Quits the program
+# def quitProgram():
+#     print("Goodbye!")
+#     exit()
 
-# Starts the interactive mode of the program
-def clInteractive(players, leaderboard):
-    players = readPlayers()
-    leaderboard = readLeaderboard("storedLeaderboard")
+# # Starts the interactive mode of the program
+# def clInteractive(players, leaderboard):
+#     players = readPlayers()
+#     leaderboard = readLeaderboard("storedLeaderboard")
 
-    print("Welcome to TZ Table Tennis (Copyright 2018. All rights reserved) \n")
+#     print("Welcome to TZ Table Tennis (Copyright 2018. All rights reserved) \n")
     
-    finished = False
+#     finished = False
 
-    while (not finished):
-        print("Please choose from one of the following options:")
-        print("1) Add players")
-        print("2) Remove players")
-        print("3) Record match")
-        print("4) See leaderboard")
-        print("5) Exit \n")
+#     while (not finished):
+#         print("Please choose from one of the following options:")
+#         print("1) Add players")
+#         print("2) Remove players")
+#         print("3) Record match")
+#         print("4) See leaderboard")
+#         print("5) Exit \n")
 
-        choice = raw_input()
-        print("")
+#         choice = raw_input()
+#         print("")
 
-        if choice == "1":
-            players = addPlayersMenu(players)
-        elif choice == "2":
-            players, leaderboard = removePlayersMenu(players, leaderboard)
-        elif choice == "3":
-            leaderboard = recordMatchMenu(players, leaderboard)
-        elif choice == "4":
-            seeLeaderboard(leaderboard)
-        elif choice == "5":
-            quitProgram()
-        else:
-            print("Invalid input. \n")
+#         if choice == "1":
+#             players = addPlayersMenu(players)
+#         elif choice == "2":
+#             players, leaderboard = removePlayersMenu(players, leaderboard)
+#         elif choice == "3":
+#             leaderboard = recordMatchMenu(players, leaderboard)
+#         elif choice == "4":
+#             seeLeaderboard(leaderboard)
+#         elif choice == "5":
+#             quitProgram()
+#         else:
+#             print("Invalid input. \n")
 
 
 
@@ -137,7 +137,9 @@ def clRecordMatch(playersTable, leaderboard):
     winner = Player(sys.argv[2])
     loser = Player(sys.argv[3])
 
-    if not playersTable.playerInTable(winner) and playersTable.playerInTable(loser):
+    if winner == loser:
+        print("The winner and loser must be different players")
+    elif not playersTable.playerInTable(winner) and playersTable.playerInTable(loser):
         print("Neither player is part of this league")
     elif not playersTable.playerInTable(winner):
         print("The winner is not part of this league")
@@ -195,6 +197,11 @@ def clNewLeaderboard():
         reorderLeaderboardNames(newLeaderboardName, leaderboardNames)
         print("Leaderboard added!")
 
+# Displays the help menu
+def clShowHelp():
+    helpFile = open("help.txt", "r")
+    helpFileContents = helpFile.read()
+    print(helpFileContents)
 
 
 # Adds a player to the players list, unless they are already in the players list
@@ -412,9 +419,7 @@ def main():
         defaultSeeLeaderboard()
         sys.exit(1)
     operator = sys.argv[1]
-    if operator == "--interactive":
-        clInteractive(players, leaderboard)
-    elif operator == "--add":
+    if operator == "--add":
         clAddPlayers(players)
     elif operator == "--remove":
         clRemovePlayer(players, leaderboard)
@@ -428,38 +433,14 @@ def main():
         clChangeLeaderboard()
     elif operator == "--new":
         clNewLeaderboard()
+    elif operator == "--help":
+        clShowHelp()
     else:
         print("Invalid input")
 
     updateHTML()
 
-    
-        
-# def main():
-#     if len(sys.argv) != 3:
-#         print 'usage: ./leaderboard.py {winner | loser} file'
-#         sys.exit(1)
 
-#     leaderboard = ["matt", "junaid", "mike", "james", "sandeep"]
-    
-#     winner = sys.argv[1]
-#     loser = sys.argv[2]
-
-#     if winner in leaderboard and loser in leaderboard:
-#         leaderboard = existingWin(leaderboard, winner, loser)
-#     elif winner in leaderboard:
-#         leaderboard = newLoser(leaderboard, loser)
-#     elif loser in leaderboard:
-#         leaderboard = newWinner(leaderboard, winner, loser)
-#     else:
-#         leaderboard = newPlayers(leaderboard, winner, loser)
-#     #leaderboard = existingWin(leaderboard, "james", "matt")
-#     #leaderboard = newLoser(leaderboard, "emily")
-#     #leaderboard = newPlayers(leaderboard, "emily", "ash")
-#     #leaderboard = newWinner(leaderboard, "emily", "junaid")
-
-#     for player in leaderboard:
-#         print(player)
 
 if __name__ == '__main__':
   main()
