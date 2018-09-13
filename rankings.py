@@ -352,7 +352,10 @@ def updateHTML():
     #Search for bit to be replaced
     #Loop through leaderboard list, adding each leaderboard
         #Loop through players in leaderboard, adding each player
-    return
+
+    with open('startFile.html', 'r') as myfile:
+        htmlString = myfile.read()
+        print htmlString
 
 
 # Main method
