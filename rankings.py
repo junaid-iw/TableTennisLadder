@@ -74,10 +74,44 @@ from leaderboard import Leaderboard
 #         else:
 #             print("Invalid input. \n")
 
+#
+# MAIN METHOD
+#
 
+# Main method
+def main():
+    
+    players = []
+    leaderboard = []
+    
+    if len(sys.argv) == 1:
+        clDefaultSeeLeaderboard()
+        sys.exit(1)
+    operator = sys.argv[1]
+    if operator == "--add":
+        clAddPlayers(players)
+    elif operator == "--remove":
+        clRemovePlayer(players, leaderboard)
+    elif operator == "--removeall":
+        clRemovePlayerFromAll(players, leaderboard)
+    elif operator == "--result":
+        clRecordMatch(players, leaderboard)
+    elif operator == "--rank":
+        clSeeLeaderboard()
+    elif operator == "--change":
+        clChangeLeaderboard()
+    elif operator == "--new":
+        clCreateLeaderboard()
+    elif operator == "--help":
+        clShowHelp()
+    else:
+        print("Invalid input")
 
+    updateHTML()
 
-
+#
+# ADD PLAYER METHODS
+#
 
 # Adds a new player (Unix interface)
 def clAddPlayers(playersTable):
@@ -90,6 +124,19 @@ def clAddPlayers(playersTable):
     newPlayer = Player(newPlayerName)
 
     addPlayerIfNew(playersTable, newPlayer)
+
+# Adds a player to the players list, unless they are already in the players list
+def addPlayerIfNew(playersTable, newPlayer):
+    if playersTable.playerInTable(newPlayer):
+            print("This player already in the players list.")
+    else:
+        playersTable.addPlayer(newPlayer)
+        updatePlayersTable(playersTable)
+        print("Player added!")   
+
+#
+# REMOVE PLAYER METHODS
+#
 
 # Removes a player from the current leaderboard
 def clRemovePlayerFromAll(players, leaderboard):
@@ -107,7 +154,6 @@ def clRemovePlayerFromAll(players, leaderboard):
     else:
         removePlayerFromAll(playersTable, removedPlayer)
 
-
 # Removes a player from all leaderboards and players table (Unix interface)
 def clRemovePlayer(players, leaderboard):
     if len(sys.argv) != 3:
@@ -124,6 +170,40 @@ def clRemovePlayer(players, leaderboard):
     else:
         leaderboard = getCurrentLeaderboard()
         removePlayerFromLeaderboardIfPresent(leaderboard, removedPlayer)
+
+# Removes a player from the players list (and leaderboard list if they're in that list),
+# unless they are not in the players list
+def removePlayerFromAll(playersTable, removedPlayer):
+    removePlayerFromPlayersTable(playersTable, removedPlayer)
+    
+    leaderboardNames = readLeaderboardNames()
+    for leaderboardName in leaderboardNames:
+        leaderboard = readLeaderboard(leaderboardName)
+        if leaderboard.playerInRankings(removedPlayer):
+            removePlayerFromLeaderboard(leaderboard, removedPlayer)
+    print("Player removed from championship!")
+
+# Removes a specified player from the current leaderboard if they are on that leaderboard
+def removePlayerFromLeaderboardIfPresent(leaderboard, removedPlayer):
+    if leaderboard.playerInRankings(removedPlayer):
+        removePlayerFromLeaderboard(leaderboard, removedPlayer)
+        print("Player removed from " + leaderboard.getName())
+    else:
+        print("This player is not in the specified leaderboard")
+
+# Removes player from players table
+def removePlayerFromPlayersTable(playersTable, removedPlayer):
+    playersTable.removePlayer(removedPlayer)
+    updatePlayersTable(playersTable)
+
+# Removes player from leaderboard
+def removePlayerFromLeaderboard(leaderboard, removedPlayer):
+    leaderboard.removePlayer(removedPlayer)
+    updateLeaderboard(leaderboard)
+
+#
+# RECORD MATCH METHODS
+#
 
 # Records a match between two players, updating the leaderboard table (Unix interface)
 def clRecordMatch(playersTable, leaderboard):
@@ -149,7 +229,28 @@ def clRecordMatch(playersTable, leaderboard):
         updateLeaderboardAfterMatch(winner, loser, leaderboard)
         print("Leaderboard updated!")
 
-def defaultSeeLeaderboard():
+# Requests a winner or a loser
+def requestWinnerOrLoser(winnerOrLoser, players):
+    while(True):
+        player = requestName("Please enter the name of the match " + winnerOrLoser + ": \n")
+
+        if (player not in players):
+            print("This player is not in the league.")
+        else:
+            return player
+
+# Updates the leaderboard list based on a winner and loser of a match
+def updateLeaderboardAfterMatch(winner, loser, leaderboard):
+    leaderboard.updateAfterMatch(winner, loser)
+
+    updateLeaderboard(leaderboard)
+    return leaderboard
+
+#
+# SEE LEADERBOARD METHODS
+#
+
+def clDefaultSeeLeaderboard():
     leaderboard = getCurrentLeaderboard()
     seeLeaderboard(leaderboard)
 
@@ -161,6 +262,23 @@ def clSeeLeaderboard():
     
     leaderboard = getCurrentLeaderboard()
     seeLeaderboard(leaderboard)
+
+# Prints the leaderboard table to the screen
+def seeLeaderboard(leaderboard):
+    print(leaderboard.getName() +  ":\n")
+    
+    players = leaderboard.getRankings()
+    if len(players) == 0:
+        print("There are currently no players on this leaderboard")
+    else:
+        for position, player in enumerate(players, start=1):
+            print str(position) + ". " + player.getName()
+    
+    print("")
+
+#
+# CHANGE LEADERBOARD METHODS
+#
 
 # Changes to a new current leaderboard
 def clChangeLeaderboard():
@@ -179,8 +297,21 @@ def clChangeLeaderboard():
         reorderLeaderboardNames(newCurrentLeaderboardName, leaderboardNames)
         print("Current leaderboard changed to " + newCurrentLeaderboardName)
 
+# Reorders the leaderboardNames.txt file so the current leaderboard's name is first
+def reorderLeaderboardNames(newCurrentLeaderboardName, leaderboardNames):
+    if newCurrentLeaderboardName in leaderboardNames:
+        newCurrentLearderboardNamePosition = leaderboardNames.index(newCurrentLeaderboardName)
+        reorderedLeaderboardNames = [newCurrentLeaderboardName] + leaderboardNames[:newCurrentLearderboardNamePosition] + leaderboardNames[newCurrentLearderboardNamePosition + 1:]
+    else:
+        reorderedLeaderboardNames = [newCurrentLeaderboardName] + leaderboardNames
+    updateFile("leaderboardNames.txt", reorderedLeaderboardNames)
+
+#
+# CREATE LEADERBOARD METHODS
+#
+
 # Creates a new leaderboard and makes it the current leaderboard
-def clNewLeaderboard():
+def clCreateLeaderboard():
     if len(sys.argv) != 3:
         print("\n'--new' operator requires 1 parameter (the leaderboard to be changed to)\n")
         sys.exit(1)
@@ -197,6 +328,10 @@ def clNewLeaderboard():
         reorderLeaderboardNames(newLeaderboardName, leaderboardNames)
         print("Leaderboard added!")
 
+#
+# SHOW HELP METHODS
+#
+
 # Displays the help menu
 def clShowHelp():
     helpFile = open("help.txt", "r")
@@ -204,46 +339,12 @@ def clShowHelp():
     print(helpFileContents)
 
 
-# Adds a player to the players list, unless they are already in the players list
-def addPlayerIfNew(playersTable, newPlayer):
-    if playersTable.playerInTable(newPlayer):
-            print("This player already in the players list.")
-    else:
-        playersTable.addPlayer(newPlayer)
-        updatePlayersTable(playersTable)
-        print("Player added!")    
+#
+# AUXILLARY METHODS
+#
 
-# Removes a player from the players list (and leaderboard list if they're in that list),
-# unless they are not in the players list
-def removePlayerFromAll(playersTable, removedPlayer):
-    removePlayerFromPlayersTable(playersTable, removedPlayer)
-    
-    leaderboardNames = readLeaderboardNames()
-    for leaderboardName in leaderboardNames:
-        leaderboard = readLeaderboard(leaderboardName)
-        if leaderboard.playerInRankings(removedPlayer):
-            removePlayerFromLeaderboard(leaderboard, removedPlayer)
-    print("Player removed from championship!")
-
-def removePlayerFromLeaderboardIfPresent(leaderboard, removedPlayer):
-    if leaderboard.playerInRankings(removedPlayer):
-        removePlayerFromLeaderboard(leaderboard, removedPlayer)
-        print("Player removed from " + leaderboard.getName())
-    else:
-        print("This player is not in the specified leaderboard")
-
-# Removes player from players table
-def removePlayerFromPlayersTable(playersTable, removedPlayer):
-    playersTable.removePlayer(removedPlayer)
-    updatePlayersTable(playersTable)
-
-# Removes player from leaderboard
-def removePlayerFromLeaderboard(leaderboard, removedPlayer):
-    leaderboard.removePlayer(removedPlayer)
-    updateLeaderboard(leaderboard)
-
-# Asks the user a yes/no question, returning false if anything
-# but 'y' is entered
+# Asks the user a yes/no question, returning false if anything but 'y' is entered
+# THIS IS FOR INTERACTIVE MODE
 def askUserYNQuestion(question):
     print(question + " (y/n) \n")
     choice = raw_input()
@@ -260,45 +361,7 @@ def requestName(prompt):
     print("")
     return player
 
-# Requests a winner or a loser
-def requestWinnerOrLoser(winnerOrLoser, players):
-    while(True):
-        player = requestName("Please enter the name of the match " + winnerOrLoser + ": \n")
-
-        if (player not in players):
-            print("This player is not in the league.")
-        else:
-            return player
-
-# Updates the leaderboard list based on a winner and loser of a match
-def updateLeaderboardAfterMatch(winner, loser, leaderboard):
-    leaderboard.updateAfterMatch(winner, loser)
-
-    updateLeaderboard(leaderboard)
-    return leaderboard
-
-# Reorders the leaderboardNames.txt file so the current leaderboard's name is first
-def reorderLeaderboardNames(newCurrentLeaderboardName, leaderboardNames):
-    if newCurrentLeaderboardName in leaderboardNames:
-        newCurrentLearderboardNamePosition = leaderboardNames.index(newCurrentLeaderboardName)
-        reorderedLeaderboardNames = [newCurrentLeaderboardName] + leaderboardNames[:newCurrentLearderboardNamePosition] + leaderboardNames[newCurrentLearderboardNamePosition + 1:]
-    else:
-        reorderedLeaderboardNames = [newCurrentLeaderboardName] + leaderboardNames
-    updateFile("leaderboardNames.txt", reorderedLeaderboardNames)
-
-# Prints the leaderboard table to the screen
-def seeLeaderboard(leaderboard):
-    print(leaderboard.getName() +  ":\n")
-    
-    players = leaderboard.getRankings()
-    if len(players) == 0:
-        print("There are currently no players on this leaderboard")
-    else:
-        for position, player in enumerate(players, start=1):
-            print str(position) + ". " + player.getName()
-    
-    print("")
-
+# Returns a list of all the leaderboards
 def getAllLeaderboards():
     leaderboardNames = readLeaderboardNames()
     allLeaderboards = []
@@ -319,6 +382,10 @@ def getCurrentLeaderboard():
     currentLeaderboardName = leaderboardNames[0]
     currentLeaderboard = readLeaderboard(currentLeaderboardName)
     return currentLeaderboard
+
+#
+# READ FILE METHODS
+#
 
 def readPlayers():
     playerNames = readFile("storedPlayers.txt")
@@ -348,6 +415,10 @@ def readFile(filename):
     myFile.close()
     return contents
 
+#
+# WRITE FILE METHODS
+#
+
 def updatePlayersTable(playersTable):
     players = playersTable.getPlayers()
     playerNames = []
@@ -369,6 +440,9 @@ def updateFile(filename, contents):
         myFile.write(item + "\n")
     myFile.close()
 
+#
+# HTML METHODS
+#
 
 def updateHTML():
     #Create list of leaderboard objects
@@ -407,40 +481,9 @@ def updateHTML():
     f.write(htmlString)
     f.close()
 
-
-
-# Main method
-def main():
-    
-    players = []
-    leaderboard = []
-    
-    if len(sys.argv) == 1:
-        defaultSeeLeaderboard()
-        sys.exit(1)
-    operator = sys.argv[1]
-    if operator == "--add":
-        clAddPlayers(players)
-    elif operator == "--remove":
-        clRemovePlayer(players, leaderboard)
-    elif operator == "--removeall":
-        clRemovePlayerFromAll(players, leaderboard)
-    elif operator == "--result":
-        clRecordMatch(players, leaderboard)
-    elif operator == "--rank":
-        clSeeLeaderboard()
-    elif operator == "--change":
-        clChangeLeaderboard()
-    elif operator == "--new":
-        clNewLeaderboard()
-    elif operator == "--help":
-        clShowHelp()
-    else:
-        print("Invalid input")
-
-    updateHTML()
-
-
+#
+# INITIATOR
+#
 
 if __name__ == '__main__':
   main()
