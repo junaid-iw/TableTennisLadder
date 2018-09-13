@@ -1,5 +1,6 @@
 class Leaderboard:
     def __init__(self, name, rankings):
+        self.name = name
         self.rankings = rankings
 
     def getName(self):
@@ -41,6 +42,3 @@ class Leaderboard:
         if winnerPosition > loserPosition:
             oldRankings = self.rankings
             self.rankings = oldRankings[:loserPosition] + [winner] + oldRankings[loserPosition:winnerPosition] + oldRankings[winnerPosition + 1:]
-
-
-    

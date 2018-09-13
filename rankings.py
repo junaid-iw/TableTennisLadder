@@ -36,24 +36,10 @@ def recordMatchMenu(players, leaderboard):
     print("leaderboard updated!")
     return leaderboard
 
-# Prints the leaderboard table to the screen
-def seeLeaderboard(leaderboard):
-    print("The current leaderboard are as follows: \n")
-
-    players = leaderboard.getRankings()
-    for position, player in enumerate(players, start=1):
-        print str(position) + ". " + player.getName()
-    print("")
-
 # Quits the program
 def quitProgram():
     print("Goodbye!")
     exit()
-
-
-
-
-
 
 # Starts the interactive mode of the program
 def clInteractive(players, leaderboard):
@@ -88,10 +74,15 @@ def clInteractive(players, leaderboard):
         else:
             print("Invalid input. \n")
 
+
+
+
+
+
 # Adds a new player (Unix interface)
 def clAddPlayers(playersTable):
     if len(sys.argv) != 3:
-        print("\n'-add' operator requires 1 parameter (name of player to be added)\n")
+        print("\n'--add' operator requires 1 parameter (name of player to be added)\n")
         sys.exit(1)
     
     playersTable = readPlayers()
@@ -100,10 +91,10 @@ def clAddPlayers(playersTable):
 
     addPlayerIfNew(playersTable, newPlayer)
 
-# Removes a player (Unix interface)
-def clRemovePlayers(players, leaderboard):
-    if len(sys.argv) != 3 and len(sys.argv) != 4:
-        print("\n'-remove' operator requires either 1 or 2 parameters (see --help menu for details)\n")
+# Removes a player from the current leaderboard
+def clRemovePlayerFromAll(players, leaderboard):
+    if len(sys.argv) != 3:
+        print("\n'--removeall' operator requires 1 parameters (the player to be removed)\n")
         sys.exit(1)
     
     playersTable = readPlayers()
@@ -113,23 +104,35 @@ def clRemovePlayers(players, leaderboard):
 
     if not playersTable.playerInTable(removedPlayer):
         print("This player is not in the players list.")
-    elif len(sys.argv) == 3:
-        removePlayerFromAll(playersTable, removedPlayer)
     else:
-        leaderboardName = sys.argv[3]
-        leaderboard = readLeaderboard(leaderboardName)
-        removePlayerFromLeaderboardIfPresent(leaderboard, removedPlayer)
+        removePlayerFromAll(playersTable, removedPlayer)
+
+
+# Removes a player from all leaderboards and players table (Unix interface)
+def clRemovePlayer(players, leaderboard):
+    if len(sys.argv) != 3:
+        print("\n'--remove' operator requires 1 parameter (the player to be removed)\n")
+        sys.exit(1)
     
-    return
+    playersTable = readPlayers()
+    
+    removedPlayerName = sys.argv[2]
+    removedPlayer = Player(removedPlayerName)
+
+    if not playersTable.playerInTable(removedPlayer):
+        print("This player is not in the players list.")
+    else:
+        leaderboard = getCurrentLeaderboard()
+        removePlayerFromLeaderboardIfPresent(leaderboard, removedPlayer)
 
 # Records a match between two players, updating the leaderboard table (Unix interface)
 def clRecordMatch(playersTable, leaderboard):
     if len(sys.argv) != 4:
-        print("\n'-result' operator requires 2 parameters (name of winner, name of loser)\n")
+        print("\n'--result' operator requires 2 parameters (name of winner, name of loser)\n")
         sys.exit(1)
     
     playersTable = readPlayers()
-    leaderboard = readLeaderboard("storedLeaderboard")
+    leaderboard = getCurrentLeaderboard()
 
     winner = Player(sys.argv[2])
     loser = Player(sys.argv[3])
@@ -144,18 +147,49 @@ def clRecordMatch(playersTable, leaderboard):
         updateLeaderboardAfterMatch(winner, loser, leaderboard)
         print("Leaderboard updated!")
 
-
-
 # Prints the current leaderboard to the terminal (Unix interface)
 def clSeeleaderboard():
     if len(sys.argv) != 2:
-        print("\n'-result' operator requires no parameters\n")
+        print("\n'--rank' operator requires no parameters\n")
         sys.exit(1)
     
-    leaderboard = readLeaderboard("storedLeaderboard")
+    leaderboard = getCurrentLeaderboard()
     seeLeaderboard(leaderboard)
 
+# Changes to a new current leaderboard
+def clChangeLeaderboard():
+    if len(sys.argv) != 3:
+        print("\n'--change' operator requires 1 parameter (the leaderboard to be changed to)\n")
+        sys.exit(1)
 
+    newCurrentLeaderboardName = sys.argv[2]
+    currentLeaderboard = getCurrentLeaderboard()
+    leaderboardNames = readLeaderboardNames()
+    if newCurrentLeaderboardName not in leaderboardNames:
+        print("The specified leaderboard does not exist")
+    elif newCurrentLeaderboardName == currentLeaderboard.getName():
+        print("The specified leaderboard is already the current leaderboard")
+    else:
+        reorderLeaderboardNames(newCurrentLeaderboardName, leaderboardNames)
+        print("Current leaderboard changed to " + newCurrentLeaderboardName)
+
+# Creates a new leaderboard and makes it the current leaderboard
+def clNewLeaderboard():
+    if len(sys.argv) != 3:
+        print("\n'--new' operator requires 1 parameter (the leaderboard to be changed to)\n")
+        sys.exit(1)
+    
+    newLeaderboardName = sys.argv[2]
+    leaderboardNames = readLeaderboardNames()
+
+    if newLeaderboardName in leaderboardNames:
+        print("This leaderboard already exists")
+    else:
+        newLeaderboard = Leaderboard(newLeaderboardName, [])
+        updateLeaderboard(newLeaderboard)
+
+        reorderLeaderboardNames(newLeaderboardName, leaderboardNames)
+        print("Leaderboard added!")
 
 
 
@@ -183,6 +217,7 @@ def removePlayerFromAll(playersTable, removedPlayer):
 def removePlayerFromLeaderboardIfPresent(leaderboard, removedPlayer):
     if leaderboard.playerInRankings(removedPlayer):
         removePlayerFromLeaderboard(leaderboard, removedPlayer)
+        print("Player removed from " + leaderboard.getName())
     else:
         print("This player is not in the specified leaderboard")
 
@@ -226,12 +261,41 @@ def requestWinnerOrLoser(winnerOrLoser, players):
 
 # Updates the leaderboard list based on a winner and loser of a match
 def updateLeaderboardAfterMatch(winner, loser, leaderboard):
-    
-    
     leaderboard.updateAfterMatch(winner, loser)
 
     updateLeaderboard(leaderboard)
     return leaderboard
+
+# Reorders the leaderboardNames.txt file so the current leaderboard's name is first
+def reorderLeaderboardNames(newCurrentLeaderboardName, leaderboardNames):
+    if newCurrentLeaderboardName in leaderboardNames:
+        newCurrentLearderboardNamePosition = leaderboardNames.index(newCurrentLeaderboardName)
+        reorderedLeaderboardNames = [newCurrentLeaderboardName] + leaderboardNames[:newCurrentLearderboardNamePosition] + leaderboardNames[newCurrentLearderboardNamePosition + 1:]
+    else:
+        reorderedLeaderboardNames = [newCurrentLeaderboardName] + leaderboardNames
+    updateFile("leaderboardNames.txt", reorderedLeaderboardNames)
+
+# Prints the leaderboard table to the screen
+def seeLeaderboard(leaderboard):
+    print(leaderboard.getName() +  ":\n")
+
+    players = leaderboard.getRankings()
+    for position, player in enumerate(players, start=1):
+        print str(position) + ". " + player.getName()
+    print("")
+
+
+
+# Returns the current leaderboard
+def getCurrentLeaderboard():
+    leaderboardNames = readLeaderboardNames()
+    if len(leaderboardNames) == 0:
+        print("There are currently no existing leaderboards")
+        sys.exit(1)
+
+    currentLeaderboardName = leaderboardNames[0]
+    currentLeaderboard = readLeaderboard(currentLeaderboardName)
+    return currentLeaderboard
 
 def readPlayers():
     playerNames = readFile("storedPlayers.txt")
@@ -263,17 +327,33 @@ def readFile(filename):
 
 def updatePlayersTable(playersTable):
     players = playersTable.getPlayers()
-    updateFile("storedPlayers.txt", players)
+    playerNames = []
+    for player in players:
+        playerNames.append(player.getName())
+    updateFile("storedPlayers.txt", playerNames)
 
 def updateLeaderboard(leaderboard):
     players = leaderboard.getRankings()
-    updateFile("storedLeaderboard", players)
-
-def updateFile(filename, players):
-    myFile = open(filename, "w")
+    playerNames = []
     for player in players:
-        myFile.write(player.getName() + "\n")
+        playerNames.append(player.getName())
+    leaderboardName = leaderboard.getName()
+    updateFile(leaderboardName + ".txt", playerNames)
+
+def updateFile(filename, contents):
+    myFile = open(filename, "w")
+    for item in contents:
+        myFile.write(item + "\n")
     myFile.close()
+
+
+updateHTML():
+    #Create list of leaderboard objects
+    #Search for bit to be replaced
+    #Loop through leaderboard list, adding each leaderboard
+        #Loop through players in leaderboard, adding each player
+    return
+
 
 # Main method
 def main():
@@ -284,19 +364,27 @@ def main():
     if len(sys.argv) == 1:
         clSeeleaderboard()
         sys.exit(1)
-    if sys.argv[1] == "--interactive":
+    operator = sys.argv[1]
+    if operator == "--interactive":
         clInteractive(players, leaderboard)
-    elif sys.argv[1] == "--add":
+    elif operator == "--add":
         clAddPlayers(players)
-    elif sys.argv[1] == "--remove":
-        clRemovePlayers(players, leaderboard)
-    elif sys.argv[1] == "--result":
+    elif operator == "--remove":
+        clRemovePlayer(players, leaderboard)
+    elif operator == "--removeall":
+        clRemovePlayerFromAll(players, leaderboard)
+    elif operator == "--result":
         clRecordMatch(players, leaderboard)
-    elif sys.argv[1] == "--rank":
+    elif operator == "--rank":
         clSeeleaderboard()
+    elif operator == "--change":
+        clChangeLeaderboard()
+    elif operator == "--new":
+        clNewLeaderboard()
     else:
         print("Invalid input")
 
+    updateHTML()
     
         
 # def main():

@@ -6,6 +6,9 @@ Help menu
 
 Update tests
 
-Implement multiple tables
-
 FileHandler class?
+
+Abstract out argument checker
+
+Check 'newLeaderboardName' for shit characters
+
