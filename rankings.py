@@ -288,7 +288,15 @@ def seeLeaderboard(leaderboard):
         print str(position) + ". " + player.getName()
     print("")
 
+def getAllLeaderboards():
+    leaderboardNames = readLeaderboardNames()
+    allLeaderboards = []
 
+    for name in leaderboardNames:
+        leaderboard = readLeaderboard(name)
+        allLeaderboards.append(leaderboard)
+
+    return allLeaderboards
 
 # Returns the current leaderboard
 def getCurrentLeaderboard():
@@ -359,7 +367,32 @@ def updateHTML():
 
     with open('startFile.html', 'r') as myfile:
         htmlString = myfile.read()
-        print htmlString
+        myfile.close()
+    
+    allLeaderboards = getAllLeaderboards()
+
+    for leaderboard in allLeaderboards:
+        htmlString += '\n<div class="leaderboard">'
+        htmlString += '\n<span style="position: relative; top: -80px; font-size: 150px;">&#x1F3C6;</span>'
+        htmlString += '\n<h1 style="margin-top: -50px">'+ leaderboard.getName() +'</h1>'
+        htmlString += '\n<div id="results">'
+        
+        players = leaderboard.getRankings()
+
+        htmlString += '\n<div class="row"><div style="margin: 0; padding: 0; float:left;">1.</div> <marquee width="190px">'+ players[0].getName() +'</marquee> <div style="vertical-align: middle; font-size: 26px; height: 44px; width: 44px; background-color: white; border-radius: 50px; float: right; margin: 0; padding: 0;"><p style="margin-top: 6px;">&#x1F3C6;</p></div></div>'
+
+        for position, player in enumerate(players, start=1):
+            if not position == 1:
+                htmlString += '<div class="row"><div style="margin: 0; padding: 0; float:left;">' + str(position) + '.</div>' + player.getName() + '</div>'
+
+        htmlString += '\n</div>\n</div>'
+
+    htmlString += '\n</div>\n</body>\n</html>'
+        
+    f= open("leaderboard.html","w")
+    f.write(htmlString)
+    f.close()
+
 
 
 # Main method
