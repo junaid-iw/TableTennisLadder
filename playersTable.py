@@ -19,7 +19,3 @@ class PlayersTable:
 
     def removePlayer(self, player):
         self.players.remove(player)
-
-    
-
-    

@@ -1,15 +1,9 @@
-Control for winner + loser being same name
-
-Clear rankings
-
-1. Help menu
-
-Update tests
-
-(FileHandler class?)
+Remove leaderboard
 
 Abstract out argument checker
 
 Check 'newLeaderboardName' for shit characters
 
-ReadMe
+Readme
+
+(FileHandler class?)
