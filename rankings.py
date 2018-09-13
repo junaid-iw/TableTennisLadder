@@ -347,7 +347,7 @@ def updateFile(filename, contents):
     myFile.close()
 
 
-updateHTML():
+def updateHTML():
     #Create list of leaderboard objects
     #Search for bit to be replaced
     #Loop through leaderboard list, adding each leaderboard
@@ -385,6 +385,7 @@ def main():
         print("Invalid input")
 
     updateHTML()
+
     
         
 # def main():
