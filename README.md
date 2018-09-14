@@ -25,7 +25,8 @@ In terminal, cd to the directory of this project.
 python main.py <option> <arguments>
 ```
 
-##Arguments:
+###Arguments
+
 ```
     --help          View the help.
     --add_player    Add a player to the players table.
