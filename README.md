@@ -25,7 +25,8 @@ In terminal, cd to the directory of this project.
 python main.py <option> <arguments>
 ```
 
-####Arguments:
+###Arguments:
+```
     --help          View the help.
     --add_player    Add a player to the players table.
     --rm_player     Remove a player from the current leaderboard.
@@ -35,3 +36,4 @@ python main.py <option> <arguments>
     --change        Select another leaderboard.
     --result        Record the result of a match on the current leaderboard.
     --rank          View the current leaderboard.
+```
