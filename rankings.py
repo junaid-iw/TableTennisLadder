@@ -90,9 +90,9 @@ def main():
     operator = sys.argv[1]
     if operator == "--add":
         clAddPlayers(players)
-    elif operator == "--remove":
+    elif operator == "--rm_player":
         clRemovePlayer(players, leaderboard)
-    elif operator == "--removeall":
+    elif operator == "--rm_player_all":
         clRemovePlayerFromAll(players, leaderboard)
     elif operator == "--result":
         clRecordMatch(players, leaderboard)
@@ -102,6 +102,8 @@ def main():
         clChangeLeaderboard()
     elif operator == "--new":
         clCreateLeaderboard()
+    elif operator == "--rm_board":
+        clRemoveLeaderboard()
     elif operator == "--help":
         clShowHelp()
     else:
@@ -297,15 +299,6 @@ def clChangeLeaderboard():
         reorderLeaderboardNames(newCurrentLeaderboardName, leaderboardNames)
         print("Current leaderboard changed to " + newCurrentLeaderboardName)
 
-# Reorders the leaderboardNames.txt file so the current leaderboard's name is first
-def reorderLeaderboardNames(newCurrentLeaderboardName, leaderboardNames):
-    if newCurrentLeaderboardName in leaderboardNames:
-        newCurrentLearderboardNamePosition = leaderboardNames.index(newCurrentLeaderboardName)
-        reorderedLeaderboardNames = [newCurrentLeaderboardName] + leaderboardNames[:newCurrentLearderboardNamePosition] + leaderboardNames[newCurrentLearderboardNamePosition + 1:]
-    else:
-        reorderedLeaderboardNames = [newCurrentLeaderboardName] + leaderboardNames
-    updateFile("leaderboardNames.txt", reorderedLeaderboardNames)
-
 #
 # CREATE LEADERBOARD METHODS
 #
@@ -327,6 +320,31 @@ def clCreateLeaderboard():
 
         reorderLeaderboardNames(newLeaderboardName, leaderboardNames)
         print("Leaderboard added!")
+
+#
+# REMOVE LEADERBOARD METHODS
+#
+
+# Removes a specified leaderboard if it exists
+def clRemoveLeaderboard():
+    if len(sys.argv) != 3:
+        print("\n'--new' operator requires 1 parameter (the leaderboard to be changed to)\n")
+        sys.exit(1)
+    
+    removedLeaderboardName = sys.argv[2]
+    leaderboardNames = readLeaderboardNames()
+
+    if removedLeaderboardName not in leaderboardNames:
+        print("This leaderboard does not exist")
+    else:
+        removeLeaderboard(removedLeaderboardName)
+        print("Leaderboard removed!")
+
+# Removes a specified leaderboard
+def removeLeaderboard(removedLeaderboardName):
+    leaderboardNames = readLeaderboardNames()
+    leaderboardNames.remove(removedLeaderboardName)
+    updateLeaderboardNames(leaderboardNames)    
 
 #
 # SHOW HELP METHODS
@@ -433,6 +451,18 @@ def updateLeaderboard(leaderboard):
         playerNames.append(player.getName())
     leaderboardName = leaderboard.getName()
     updateFile(leaderboardName + ".txt", playerNames)
+
+def updateLeaderboardNames(leaderboardNames):
+    updateFile("leaderboardNames.txt", leaderboardNames)
+
+# Reorders the leaderboardNames.txt file so the current leaderboard's name is first
+def reorderLeaderboardNames(newCurrentLeaderboardName, leaderboardNames):
+    if newCurrentLeaderboardName in leaderboardNames:
+        newCurrentLearderboardNamePosition = leaderboardNames.index(newCurrentLeaderboardName)
+        reorderedLeaderboardNames = [newCurrentLeaderboardName] + leaderboardNames[:newCurrentLearderboardNamePosition] + leaderboardNames[newCurrentLearderboardNamePosition + 1:]
+    else:
+        reorderedLeaderboardNames = [newCurrentLeaderboardName] + leaderboardNames
+    updateFile("leaderboardNames.txt", reorderedLeaderboardNames)
 
 def updateFile(filename, contents):
     myFile = open(filename, "w")

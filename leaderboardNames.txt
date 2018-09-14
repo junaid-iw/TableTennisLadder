@@ -1,3 +1,2 @@
 BigChamp
-MediumChamp
 LittleChamp
