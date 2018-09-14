@@ -1,5 +1,3 @@
-Remove leaderboard
-
 Abstract out argument checker
 
 Check 'newLeaderboardName' for shit characters
