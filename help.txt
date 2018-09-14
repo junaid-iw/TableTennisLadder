@@ -1,4 +1,16 @@
 Table Tennis Manager
 
 Usages:
-    
+    python rankings.py --add <name>
+
+
+Options: 
+    --help          View the help.
+    --add_player    Add a player to the players table.
+    --rm_player     Remove a player from the current leaderboard.
+    --rm_player_all Remove a specified player from all leaderboards and players table.
+    --add_board     Create a new leaderboard.
+    --rm_board
+    --change        Select another leaderboard.
+    --result        Record the result of a match on the current leaderboard.
+    --rank          View the current leaderboard.
