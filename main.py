@@ -3,77 +3,6 @@ from player import Player
 from playersTable import PlayersTable
 from leaderboard import Leaderboard
 
-
-# # Called when the user chooses to add a new player. Allows the user to add multiple players.
-# def addPlayersMenu(players):
-#     while (True):
-#         newPlayerName = requestName("Please enter the name of the new player: \n")
-#         newPlayer = Player(newPlayerName)
-
-#         addPlayerIfNew(players, newPlayer)
-            
-#         if not askUserYNQuestion("Would you like to add another player?"):
-#             return players
-
-# # Removes players from both the players list and the leaderboard list
-# def removePlayersMenu(playersList, leaderboard):
-#     while (True):
-#         removedPlayerName = requestName("Please enter the name of the player you want to remove: \n")
-#         removedPlayer = Player(removedPlayerName)
-
-#         removePlayerIfInPlayersTable(playersList, leaderboard, removedPlayer)
-
-#         if not askUserYNQuestion("Would you ike to remove another player?"):
-#             return playersList, leaderboard
-
-# # Allows the user to input a winner and loser of a match, and updates the leaderboard table
-# # accordingly
-# def recordMatchMenu(players, leaderboard):
-#     winner = requestWinnerOrLoser("winner", players)
-#     loser = requestWinnerOrLoser("loser", players)
-#     leaderboard = updateLeaderboardAfterMatch(winner, loser, leaderboard)
-
-#     print("leaderboard updated!")
-#     return leaderboard
-
-# # Quits the program
-# def quitProgram():
-#     print("Goodbye!")
-#     exit()
-
-# # Starts the interactive mode of the program
-# def clInteractive(players, leaderboard):
-#     players = readPlayers()
-#     leaderboard = readLeaderboard("storedLeaderboard")
-
-#     print("Welcome to TZ Table Tennis (Copyright 2018. All rights reserved) \n")
-    
-#     finished = False
-
-#     while (not finished):
-#         print("Please choose from one of the following options:")
-#         print("1) Add players")
-#         print("2) Remove players")
-#         print("3) Record match")
-#         print("4) See leaderboard")
-#         print("5) Exit \n")
-
-#         choice = raw_input()
-#         print("")
-
-#         if choice == "1":
-#             players = addPlayersMenu(players)
-#         elif choice == "2":
-#             players, leaderboard = removePlayersMenu(players, leaderboard)
-#         elif choice == "3":
-#             leaderboard = recordMatchMenu(players, leaderboard)
-#         elif choice == "4":
-#             seeLeaderboard(leaderboard)
-#         elif choice == "5":
-#             quitProgram()
-#         else:
-#             print("Invalid input. \n")
-
 #
 # MAIN METHOD
 #
@@ -85,27 +14,27 @@ def main():
     leaderboard = []
     
     if len(sys.argv) == 1:
-        clDefaultSeeLeaderboard()
+        defaultSeeLeaderboard()
         sys.exit(1)
     operator = sys.argv[1]
     if operator == "--add_player":
-        clAddPlayers(players)
+        addPlayer(players)
     elif operator == "--rm_player":
-        clRemovePlayer(players, leaderboard)
+        removePlayer(players, leaderboard)
     elif operator == "--rm_player_all":
-        clRemovePlayerFromAll(players, leaderboard)
+        removePlayerFromAll(players, leaderboard)
     elif operator == "--result":
-        clRecordMatch(players, leaderboard)
+        recordMatch(players, leaderboard)
     elif operator == "--rank":
-        clSeeLeaderboard()
+        seeLeaderboard()
     elif operator == "--change":
-        clChangeLeaderboard()
+        changeLeaderboard()
     elif operator == "--add_board":
-        clCreateLeaderboard()
+        createLeaderboard()
     elif operator == "--rm_board":
-        clRemoveLeaderboard()
+        removeLeaderboard()
     elif operator == "--help":
-        clShowHelp()
+        showHelp()
     else:
         print("Invalid input")
 
@@ -116,7 +45,7 @@ def main():
 #
 
 # Adds a new player (Unix interface)
-def clAddPlayers(playersTable):
+def addPlayer(playersTable):
     if len(sys.argv) != 3:
         print("\n'--add' operator requires 1 parameter (name of player to be added)\n")
         sys.exit(1)
@@ -141,7 +70,7 @@ def addPlayerIfNew(playersTable, newPlayer):
 #
 
 # Removes a player from the current leaderboard
-def clRemovePlayerFromAll(players, leaderboard):
+def removePlayerFromAll(players, leaderboard):
     if len(sys.argv) != 3:
         print("\n'--removeall' operator requires 1 parameters (the player to be removed)\n")
         sys.exit(1)
@@ -154,10 +83,11 @@ def clRemovePlayerFromAll(players, leaderboard):
     if not playersTable.playerInTable(removedPlayer):
         print("This player is not in the players list.")
     else:
-        removePlayerFromAll(playersTable, removedPlayer)
+        deletePlayerFromAll(playersTable, removedPlayer)
+        print("Player removed from championship!")
 
 # Removes a player from all leaderboards and players table (Unix interface)
-def clRemovePlayer(players, leaderboard):
+def removePlayer(players, leaderboard):
     if len(sys.argv) != 3:
         print("\n'--remove' operator requires 1 parameter (the player to be removed)\n")
         sys.exit(1)
@@ -175,7 +105,7 @@ def clRemovePlayer(players, leaderboard):
 
 # Removes a player from the players list (and leaderboard list if they're in that list),
 # unless they are not in the players list
-def removePlayerFromAll(playersTable, removedPlayer):
+def deletePlayerFromAll(playersTable, removedPlayer):
     removePlayerFromPlayersTable(playersTable, removedPlayer)
     
     leaderboardNames = readLeaderboardNames()
@@ -183,7 +113,7 @@ def removePlayerFromAll(playersTable, removedPlayer):
         leaderboard = readLeaderboard(leaderboardName)
         if leaderboard.playerInRankings(removedPlayer):
             removePlayerFromLeaderboard(leaderboard, removedPlayer)
-    print("Player removed from championship!")
+
 
 # Removes a specified player from the current leaderboard if they are on that leaderboard
 def removePlayerFromLeaderboardIfPresent(leaderboard, removedPlayer):
@@ -208,7 +138,7 @@ def removePlayerFromLeaderboard(leaderboard, removedPlayer):
 #
 
 # Records a match between two players, updating the leaderboard table (Unix interface)
-def clRecordMatch(playersTable, leaderboard):
+def recordMatch(playersTable, leaderboard):
     if len(sys.argv) != 4:
         print("\n'--result' operator requires 2 parameters (name of winner, name of loser)\n")
         sys.exit(1)
@@ -252,21 +182,21 @@ def updateLeaderboardAfterMatch(winner, loser, leaderboard):
 # SEE LEADERBOARD METHODS
 #
 
-def clDefaultSeeLeaderboard():
+def defaultSeeLeaderboard():
     leaderboard = getCurrentLeaderboard()
-    seeLeaderboard(leaderboard)
+    printLeaderboard(leaderboard)
 
 # Prints the current leaderboard to the terminal (Unix interface)
-def clSeeLeaderboard():
+def seeLeaderboard():
     if len(sys.argv) != 2:
         print("\n'--rank' operator requires no parameters\n")
         sys.exit(1)
     
     leaderboard = getCurrentLeaderboard()
-    seeLeaderboard(leaderboard)
+    printLeaderboard(leaderboard)
 
 # Prints the leaderboard table to the screen
-def seeLeaderboard(leaderboard):
+def printLeaderboard(leaderboard):
     print(leaderboard.getName() +  ":\n")
     
     players = leaderboard.getRankings()
@@ -283,7 +213,7 @@ def seeLeaderboard(leaderboard):
 #
 
 # Changes to a new current leaderboard
-def clChangeLeaderboard():
+def changeLeaderboard():
     if len(sys.argv) != 3:
         print("\n'--change' operator requires 1 parameter (the leaderboard to be changed to)\n")
         sys.exit(1)
@@ -304,7 +234,7 @@ def clChangeLeaderboard():
 #
 
 # Creates a new leaderboard and makes it the current leaderboard
-def clCreateLeaderboard():
+def createLeaderboard():
     if len(sys.argv) != 3:
         print("\n'--new' operator requires 1 parameter (the leaderboard to be changed to)\n")
         sys.exit(1)
@@ -326,7 +256,7 @@ def clCreateLeaderboard():
 #
 
 # Removes a specified leaderboard if it exists
-def clRemoveLeaderboard():
+def removeLeaderboard():
     if len(sys.argv) != 3:
         print("\n'--new' operator requires 1 parameter (the leaderboard to be changed to)\n")
         sys.exit(1)
@@ -337,11 +267,11 @@ def clRemoveLeaderboard():
     if removedLeaderboardName not in leaderboardNames:
         print("This leaderboard does not exist")
     else:
-        removeLeaderboard(removedLeaderboardName)
+        deleteLeaderboard(removedLeaderboardName)
         print("Leaderboard removed!")
 
 # Removes a specified leaderboard
-def removeLeaderboard(removedLeaderboardName):
+def deleteLeaderboard(removedLeaderboardName):
     leaderboardNames = readLeaderboardNames()
     leaderboardNames.remove(removedLeaderboardName)
     updateLeaderboardNames(leaderboardNames)    
@@ -351,7 +281,7 @@ def removeLeaderboard(removedLeaderboardName):
 #
 
 # Displays the help menu
-def clShowHelp():
+def showHelp():
     helpFile = open("help.txt", "r")
     helpFileContents = helpFile.read()
     print(helpFileContents)
@@ -517,3 +447,77 @@ def updateHTML():
 
 if __name__ == '__main__':
   main()
+
+#
+# OLD INTERACTIVE MODE
+#
+
+# # Called when the user chooses to add a new player. Allows the user to add multiple players.
+# def addPlayersMenu(players):
+#     while (True):
+#         newPlayerName = requestName("Please enter the name of the new player: \n")
+#         newPlayer = Player(newPlayerName)
+
+#         addPlayerIfNew(players, newPlayer)
+            
+#         if not askUserYNQuestion("Would you like to add another player?"):
+#             return players
+
+# # Removes players from both the players list and the leaderboard list
+# def removePlayersMenu(playersList, leaderboard):
+#     while (True):
+#         removedPlayerName = requestName("Please enter the name of the player you want to remove: \n")
+#         removedPlayer = Player(removedPlayerName)
+
+#         removePlayerIfInPlayersTable(playersList, leaderboard, removedPlayer)
+
+#         if not askUserYNQuestion("Would you ike to remove another player?"):
+#             return playersList, leaderboard
+
+# # Allows the user to input a winner and loser of a match, and updates the leaderboard table
+# # accordingly
+# def recordMatchMenu(players, leaderboard):
+#     winner = requestWinnerOrLoser("winner", players)
+#     loser = requestWinnerOrLoser("loser", players)
+#     leaderboard = updateLeaderboardAfterMatch(winner, loser, leaderboard)
+
+#     print("leaderboard updated!")
+#     return leaderboard
+
+# # Quits the program
+# def quitProgram():
+#     print("Goodbye!")
+#     exit()
+
+# # Starts the interactive mode of the program
+# def clInteractive(players, leaderboard):
+#     players = readPlayers()
+#     leaderboard = readLeaderboard("storedLeaderboard")
+
+#     print("Welcome to TZ Table Tennis (Copyright 2018. All rights reserved) \n")
+    
+#     finished = False
+
+#     while (not finished):
+#         print("Please choose from one of the following options:")
+#         print("1) Add players")
+#         print("2) Remove players")
+#         print("3) Record match")
+#         print("4) See leaderboard")
+#         print("5) Exit \n")
+
+#         choice = raw_input()
+#         print("")
+
+#         if choice == "1":
+#             players = addPlayersMenu(players)
+#         elif choice == "2":
+#             players, leaderboard = removePlayersMenu(players, leaderboard)
+#         elif choice == "3":
+#             leaderboard = recordMatchMenu(players, leaderboard)
+#         elif choice == "4":
+#             seeLeaderboard(leaderboard)
+#         elif choice == "5":
+#             quitProgram()
+#         else:
+#             print("Invalid input. \n")
