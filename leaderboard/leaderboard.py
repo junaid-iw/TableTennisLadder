@@ -25,7 +25,13 @@ class Leaderboard:
         self.rankings.append(player)
 
     def removePlayer(self, player):
-        self.rankings.remove(player)
+        # self.rankings.remove(player)
+
+        try:
+            self.rankings.remove(player)
+            return True
+        except:
+            return False
 
     def getPlayerPosition(self, player):
         return self.rankings.index(player)
