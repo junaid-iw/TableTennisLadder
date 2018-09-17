@@ -3,6 +3,7 @@ import os
 from player.player import Player
 from players_table.playersTable import PlayersTable
 from leaderboard.leaderboard import Leaderboard
+from io.file_handler import FileHandler
 
 #
 # MAIN METHOD
@@ -51,7 +52,8 @@ def addPlayer(playersTable):
         print("\n'--add' operator requires 1 parameter (name of player to be added)\n")
         sys.exit(1)
     
-    playersTable = readPlayers()
+    handler = FileHandler()
+    playersTable = handler.readPlayers()
     newPlayerName = sys.argv[2]
     newPlayer = Player(newPlayerName)
 
