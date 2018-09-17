@@ -112,17 +112,23 @@ def deletePlayerFromAll(playersTable, removedPlayer):
     leaderboardNames = readLeaderboardNames()
     for leaderboardName in leaderboardNames:
         leaderboard = readLeaderboard(leaderboardName)
-        if leaderboard.playerInRankings(removedPlayer):
-            removePlayerFromLeaderboard(leaderboard, removedPlayer)
+        if leaderboard.removePlayer(removedPlayer):
+            updateLeaderboard(leaderboard)
 
 
 # Removes a specified player from the current leaderboard if they are on that leaderboard
 def removePlayerFromLeaderboardIfPresent(leaderboard, removedPlayer):
-    if leaderboard.playerInRankings(removedPlayer):
-        removePlayerFromLeaderboard(leaderboard, removedPlayer)
+    if leaderboard.removePlayer(removedPlayer):
+        updateLeaderboard(leaderboard)
         print("Player removed from " + leaderboard.getName())
     else:
         print("This player is not in the specified leaderboard")
+
+    # if leaderboard.playerInRankings(removedPlayer):
+    #     removePlayerFromLeaderboard(leaderboard, removedPlayer)
+    #     print("Player removed from " + leaderboard.getName())
+    # else:
+    #     print("This player is not in the specified leaderboard")
 
 # Removes player from players table
 def removePlayerFromPlayersTable(playersTable, removedPlayer):
@@ -162,15 +168,15 @@ def recordMatch(playersTable, leaderboard):
         updateLeaderboardAfterMatch(winner, loser, leaderboard)
         print("Leaderboard updated!")
 
-# Requests a winner or a loser
-def requestWinnerOrLoser(winnerOrLoser, players):
-    while(True):
-        player = requestName("Please enter the name of the match " + winnerOrLoser + ": \n")
-
-        if (player not in players):
-            print("This player is not in the league.")
-        else:
-            return player
+# # Requests a winner or a loser
+# def requestWinnerOrLoser(winnerOrLoser, players):
+#     while(True):
+#         player = requestName("Please enter the name of the match " + winnerOrLoser + ": \n")
+#
+#         if (player not in players):
+#             print("This player is not in the league.")
+#         else:
+#             return player
 
 # Updates the leaderboard list based on a winner and loser of a match
 def updateLeaderboardAfterMatch(winner, loser, leaderboard):
