@@ -1,7 +1,0 @@
-Abstract out argument checker
-
-Check 'newLeaderboardName' for shit characters
-
-Readme
-
-(FileHandler class?)

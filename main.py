@@ -1,7 +1,8 @@
 import sys
-from player import Player
-from playersTable import PlayersTable
-from leaderboard import Leaderboard
+import os
+from player.player import Player
+from players_table.playersTable import PlayersTable
+from leaderboard.leaderboard import Leaderboard
 
 #
 # MAIN METHOD
@@ -244,6 +245,8 @@ def createLeaderboard():
 
     if newLeaderboardName in leaderboardNames:
         print("This leaderboard already exists")
+    elif newLeaderboardName == "leaderboardNames":
+        print("This name is not permitted")
     else:
         newLeaderboard = Leaderboard(newLeaderboardName, [])
         updateLeaderboard(newLeaderboard)
@@ -274,6 +277,7 @@ def removeLeaderboard():
 def deleteLeaderboard(removedLeaderboardName):
     leaderboardNames = readLeaderboardNames()
     leaderboardNames.remove(removedLeaderboardName)
+    os.remove("leaderboard/" + removedLeaderboardName + ".txt")
     updateLeaderboardNames(leaderboardNames)    
 
 #
@@ -336,7 +340,7 @@ def getCurrentLeaderboard():
 #
 
 def readPlayers():
-    playerNames = readFile("storedPlayers.txt")
+    playerNames = readFile("player/storedPlayers.txt")
     players = []
     for name in playerNames:
         player = Player(name)
@@ -345,7 +349,7 @@ def readPlayers():
     return playersTable
 
 def readLeaderboard(leaderboardName):
-    playerNames = readFile(leaderboardName + ".txt")
+    playerNames = readFile("leaderboard/" + leaderboardName + ".txt")
     players = []
     for name in playerNames:
         player = Player(name)
@@ -354,7 +358,7 @@ def readLeaderboard(leaderboardName):
     return leaderboard
 
 def readLeaderboardNames():
-    leaderboardNames = readFile("leaderboardNames.txt")
+    leaderboardNames = readFile("leaderboard/leaderboardNames.txt")
     return leaderboardNames
 
 def readFile(filename):
@@ -372,7 +376,7 @@ def updatePlayersTable(playersTable):
     playerNames = []
     for player in players:
         playerNames.append(player.getName())
-    updateFile("storedPlayers.txt", playerNames)
+    updateFile("player/storedPlayers.txt", playerNames)
 
 def updateLeaderboard(leaderboard):
     players = leaderboard.getRankings()
@@ -380,10 +384,10 @@ def updateLeaderboard(leaderboard):
     for player in players:
         playerNames.append(player.getName())
     leaderboardName = leaderboard.getName()
-    updateFile(leaderboardName + ".txt", playerNames)
+    updateFile("leaderboard/" + leaderboardName + ".txt", playerNames)
 
 def updateLeaderboardNames(leaderboardNames):
-    updateFile("leaderboardNames.txt", leaderboardNames)
+    updateFile("leaderboard/leaderboardNames.txt", leaderboardNames)
 
 # Reorders the leaderboardNames.txt file so the current leaderboard's name is first
 def reorderLeaderboardNames(newCurrentLeaderboardName, leaderboardNames):
@@ -392,7 +396,7 @@ def reorderLeaderboardNames(newCurrentLeaderboardName, leaderboardNames):
         reorderedLeaderboardNames = [newCurrentLeaderboardName] + leaderboardNames[:newCurrentLearderboardNamePosition] + leaderboardNames[newCurrentLearderboardNamePosition + 1:]
     else:
         reorderedLeaderboardNames = [newCurrentLeaderboardName] + leaderboardNames
-    updateFile("leaderboardNames.txt", reorderedLeaderboardNames)
+    updateFile("leaderboard/leaderboardNames.txt", reorderedLeaderboardNames)
 
 def updateFile(filename, contents):
     myFile = open(filename, "w")
@@ -410,7 +414,7 @@ def updateHTML():
     #Loop through leaderboard list, adding each leaderboard
         #Loop through players in leaderboard, adding each player
 
-    with open('startFile.html', 'r') as myfile:
+    with open('html/startFile.html', 'r') as myfile:
         htmlString = myfile.read()
         myfile.close()
     
@@ -437,7 +441,7 @@ def updateHTML():
 
     htmlString += '\n</div>\n</body>\n</html>'
         
-    f= open("leaderboard.html","w")
+    f= open("html/leaderboard.html","w")
     f.write(htmlString)
     f.close()
 
