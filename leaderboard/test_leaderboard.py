@@ -8,6 +8,7 @@ class TestLeaderboard(unittest.TestCase):
         self.player1 = Player("John")
         self.player2 = Player("Mike")
         self.player3 = Player("Malik")
+        self.player4 = Player("James")
 
         self.players_list = [self.player1, self.player2]
         self.leaderboard = Leaderboard("Leaderboard", self.players_list)
@@ -54,10 +55,40 @@ class TestLeaderboard(unittest.TestCase):
     #
 
     def test_get_player_position(self):
-        position = self.leaderboard.getPlayerPosition("John")
+        position = self.leaderboard.getPlayerPosition(self.player1)
 
-        self.assertTrue(position, 1)
+        self.assertEqual(position, 0)
 
+    # def test_get_player_not_exist_position(self):
+    #
+    #     self.assertRaises(ValueError, self.leaderboard.getPlayerPosition(self.player3))
+
+
+    def test_update_after_match_both_on_leaderboard_winner_higher(self):
+        self.leaderboard.updateAfterMatch(self.player1, self.player2)
+
+        self.assertListEqual(self.leaderboard.getRankings(), [self.player1, self.player2])
+
+
+    def test_update_after_match_both_on_leaderboard_loser_higher(self):
+        self.leaderboard.updateAfterMatch(self.player2, self.player1)
+
+        self.assertListEqual(self.leaderboard.getRankings(), [self.player2, self.player1])
+
+    def test_update_after_match_winner_not_on_leaderboard(self):
+        self.leaderboard.updateAfterMatch(self.player3, self.player1)
+
+        self.assertListEqual(self.leaderboard.getRankings(), [self.player3, self.player1, self.player2])
+
+    def test_update_after_match_loser_not_on_leaderboard(self):
+        self.leaderboard.updateAfterMatch(self.player1, self.player3)
+
+        self.assertListEqual(self.leaderboard.getRankings(), [self.player1, self.player2, self.player3])
+
+    def test_update_after_match_neither_on_leaderboard(self):
+        self.leaderboard.updateAfterMatch(self.player3, self.player4)
+
+        self.assertListEqual(self.leaderboard.getRankings(), [self.player1, self.player2, self.player3, self.player4])
 
 if __name__ == "__main__":
     unittest.main()
