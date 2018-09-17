@@ -28,13 +28,13 @@ python main.py <option> <arguments>
 ### Arguments
 
 ```
-    --help          View the help.
-    --add_player    Add a player to the players table.
-    --rm_player     Remove a player from the current leaderboard.
-    --rm_player_all Remove a specified player from all leaderboards and players table.
-    --add_board     Create a new leaderboard.
-    --rm_board
-    --change        Select another leaderboard.
-    --result        Record the result of a match on the current leaderboard.
-    --rank          View the current leaderboard.
+    --help                              View the help.
+    --add_player    <playername>        Add a player to the players table.
+    --rm_player     <playername>        Remove a player from the current leaderboard.
+    --rm_player_all <playername>        Remove a specified player from all leaderboards and players table.
+    --add_board     <boardname>         Create a new leaderboard.
+    --rm_board      <boardname>         Removes a leaderboard.
+    --change        <boardname>         Select another leaderboard.
+    --result        <winner> <loser>    Record the result of a match on the current leaderboard.
+    --rank                              View the current leaderboard.
 ```
