@@ -433,7 +433,7 @@ def updateHTML():
         htmlString += '\n<div class="leaderboard">'
         htmlString += '\n<span style="position: relative; top: -80px; font-size: 150px;">&#x1F3C6;</span>'
         htmlString += '\n<h1 style="margin-top: -50px">'+ leaderboard.getName() +'</h1>'
-        htmlString += '\n<div id="results">'
+        htmlString += '\n<div class="results">'
         
         players = leaderboard.getRankings()
         if len(players) == 0:
