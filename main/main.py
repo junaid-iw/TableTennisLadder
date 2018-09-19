@@ -8,6 +8,7 @@ from flask import Flask
 from flask import render_template
 
 
+
 # Main method
 def main():
     players = []
@@ -414,11 +415,6 @@ def updateFile(filename, contents):
 #
 
 def updateHTML():
-    #Create list of leaderboard objects
-    #Search for bit to be replaced
-    #Loop through leaderboard list, adding each leaderboard
-        #Loop through players in leaderboard, adding each player
-
     with open('../html/startFile.html', 'r') as myfile:
         htmlString = myfile.read()
         myfile.close()
@@ -436,7 +432,7 @@ def updateHTML():
         if len(players) == 0:
             htmlString += '<p>There are currently no players on this leaderboard</p>'
         else:
-            htmlString += '\n<div class="row"><div style="margin: 0; padding: 0; float:left;">1.</div> <marquee width="190px">'+ players[0].getName() +'</marquee> <div style="vertical-align: middle; font-size: 26px; height: 44px; width: 44px; background-color: white; border-radius: 50px; float: right; margin: 0; padding: 0;"><p style="margin-top: 6px;">&#x1F3C6;</p></div></div>'
+            htmlString += '\n<div class="row"><div style="margin: 0; padding: 0; float:left;">1.</div> <marquee width="190px">'+ players[0].getName() +'</marquee> <div style="vertical-align: middle; font-size: 26px; height: 44px; width: 44px; background-color: white; border-radius: 50px; float: right; margin: 0; padding: 0;"><p style="margin-top: 6px;">&#x1F3C6;</p></div></div>' #TODO
 
             for position, player in enumerate(players, start=1):
                 if not position == 1:
@@ -453,10 +449,21 @@ if __name__ == "__main__":
 
 app = Flask(__name__)
 
-@app.route('/leaderboard')
-def leaderboard():
-    return updateHTML()
+
 
 @app.route('/')
 def homepage():
     return render_template('home.html')
+
+@app.route('/leaderboard')
+def leaderboard():
+    leaderboards = getAllLeaderboards()
+    lb_list = []
+
+    for l in leaderboards:
+        player_list = []
+        for p in l.rankings:
+            player_list.append([p, l.rankings.index(p) + 1])
+        lb_list.append([l.name, player_list])
+
+    return render_template('lb.html', leaderboards=lb_list)
