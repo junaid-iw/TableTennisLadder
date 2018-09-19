@@ -4,8 +4,7 @@ sys.path.append('../')
 from player.player import Player
 from players_table.playersTable import PlayersTable
 from leaderboard.leaderboard import Leaderboard
-from flask import Flask
-from flask import render_template
+from flask import Flask, render_template, request
 
 
 
@@ -145,16 +144,13 @@ def removePlayerFromLeaderboard(leaderboard, removedPlayer):
 #
 
 # Records a match between two players, updating the leaderboard table (Unix interface)
-def recordMatch(playersTable, leaderboard):
+def recordMatch(winner, loser):
     if len(sys.argv) != 4:
         print("\n'--result' operator requires 2 parameters (name of winner, name of loser)\n")
         sys.exit(1)
     
     playersTable = readPlayers()
     leaderboard = getCurrentLeaderboard()
-
-    winner = Player(sys.argv[2])
-    loser = Player(sys.argv[3])
 
     if winner == loser:
         print("The winner and loser must be different players")
@@ -410,39 +406,6 @@ def updateFile(filename, contents):
         myFile.write(item + "\n")
     myFile.close()
 
-#
-# HTML METHODS
-#
-
-def updateHTML():
-    with open('../html/startFile.html', 'r') as myfile:
-        htmlString = myfile.read()
-        myfile.close()
-    
-    allLeaderboards = getAllLeaderboards()
-
-    for leaderboard in allLeaderboards:
-
-        htmlString += '\n<div class="leaderboard">'
-        htmlString += '\n<span style="position: relative; top: -80px; font-size: 150px;">&#x1F3C6;</span>'
-        htmlString += '\n<h1 style="margin-top: -50px">'+ leaderboard.getName() +'</h1>'
-        htmlString += '\n<div class="results">'
-        
-        players = leaderboard.getRankings()
-        if len(players) == 0:
-            htmlString += '<p>There are currently no players on this leaderboard</p>'
-        else:
-            htmlString += '\n<div class="row"><div style="margin: 0; padding: 0; float:left;">1.</div> <marquee width="190px">'+ players[0].getName() +'</marquee> <div style="vertical-align: middle; font-size: 26px; height: 44px; width: 44px; background-color: white; border-radius: 50px; float: right; margin: 0; padding: 0;"><p style="margin-top: 6px;">&#x1F3C6;</p></div></div>' #TODO
-
-            for position, player in enumerate(players, start=1):
-                if not position == 1:
-                    htmlString += '<div class="row"><div style="margin: 0; padding: 0; float:left;">' + str(position) + '.</div>' + player.getName() + '</div>'
-
-        htmlString += '\n</div>\n</div>'
-
-    htmlString += '\n</div>\n</body>\n</html>'
-        
-    return htmlString
 
 if __name__ == "__main__":
     main()
@@ -467,3 +430,18 @@ def leaderboard():
         lb_list.append([l.name, player_list])
 
     return render_template('lb.html', leaderboards=lb_list)
+
+
+@app.route('/addresult')
+def add_form():
+    return render_template('add_result_form.html')
+
+
+@app.route('/addresult', methods=['POST'])
+def add_player():
+    winner = request.form['winner'].lower()
+    loser = request.form['loser'].lower()
+    recordMatch(winner, loser)
+
+    return leaderboard()
+
