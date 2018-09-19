@@ -3,11 +3,8 @@ import os
 from player.player import Player
 from players_table.playersTable import PlayersTable
 from leaderboard.leaderboard import Leaderboard
-from io.file_handler import FileHandler
-
-#
-# MAIN METHOD
-#
+from flask import Flask
+from flask import render_template
 
 # Main method
 def main():
@@ -52,8 +49,7 @@ def addPlayer(playersTable):
         print("\n'--add' operator requires 1 parameter (name of player to be added)\n")
         sys.exit(1)
     
-    handler = FileHandler()
-    playersTable = handler.readPlayers()
+    playersTable = readPlayers()
     newPlayerName = sys.argv[2]
     newPlayer = Player(newPlayerName)
 
@@ -285,7 +281,7 @@ def removeLeaderboard():
 def deleteLeaderboard(removedLeaderboardName):
     leaderboardNames = readLeaderboardNames()
     leaderboardNames.remove(removedLeaderboardName)
-    os.remove("leaderboard/" + removedLeaderboardName + ".txt")
+    os.remove("../leaderboard/" + removedLeaderboardName + ".txt")
     updateLeaderboardNames(leaderboardNames)    
 
 #
@@ -357,7 +353,7 @@ def readPlayers():
     return playersTable
 
 def readLeaderboard(leaderboardName):
-    playerNames = readFile("leaderboard/" + leaderboardName + ".txt")
+    playerNames = readFile("../leaderboard/" + leaderboardName + ".txt")
     players = []
     for name in playerNames:
         player = Player(name)
@@ -366,7 +362,7 @@ def readLeaderboard(leaderboardName):
     return leaderboard
 
 def readLeaderboardNames():
-    leaderboardNames = readFile("leaderboard/leaderboardNames.txt")
+    leaderboardNames = readFile("../leaderboard/leaderboardNames.txt")
     return leaderboardNames
 
 def readFile(filename):
@@ -392,10 +388,10 @@ def updateLeaderboard(leaderboard):
     for player in players:
         playerNames.append(player.getName())
     leaderboardName = leaderboard.getName()
-    updateFile("leaderboard/" + leaderboardName + ".txt", playerNames)
+    updateFile("../leaderboard/" + leaderboardName + ".txt", playerNames)
 
 def updateLeaderboardNames(leaderboardNames):
-    updateFile("leaderboard/leaderboardNames.txt", leaderboardNames)
+    updateFile("../leaderboard/leaderboardNames.txt", leaderboardNames)
 
 # Reorders the leaderboardNames.txt file so the current leaderboard's name is first
 def reorderLeaderboardNames(newCurrentLeaderboardName, leaderboardNames):
@@ -404,7 +400,7 @@ def reorderLeaderboardNames(newCurrentLeaderboardName, leaderboardNames):
         reorderedLeaderboardNames = [newCurrentLeaderboardName] + leaderboardNames[:newCurrentLearderboardNamePosition] + leaderboardNames[newCurrentLearderboardNamePosition + 1:]
     else:
         reorderedLeaderboardNames = [newCurrentLeaderboardName] + leaderboardNames
-    updateFile("leaderboard/leaderboardNames.txt", reorderedLeaderboardNames)
+    updateFile("../leaderboard/leaderboardNames.txt", reorderedLeaderboardNames)
 
 def updateFile(filename, contents):
     myFile = open(filename, "w")
@@ -422,7 +418,7 @@ def updateHTML():
     #Loop through leaderboard list, adding each leaderboard
         #Loop through players in leaderboard, adding each player
 
-    with open('html/startFile.html', 'r') as myfile:
+    with open('../html/startFile.html', 'r') as myfile:
         htmlString = myfile.read()
         myfile.close()
     
@@ -449,87 +445,15 @@ def updateHTML():
 
     htmlString += '\n</div>\n</body>\n</html>'
         
-    f= open("html/leaderboard.html","w")
-    f.write(htmlString)
-    f.close()
+    return htmlString
 
-#
-# INITIATOR
-#
 
-if __name__ == '__main__':
-  main()
+app = Flask(__name__)
 
-#
-# OLD INTERACTIVE MODE
-#
+@app.route('/leaderboard')
+def leaderboard():
+    return updateHTML()
 
-# # Called when the user chooses to add a new player. Allows the user to add multiple players.
-# def addPlayersMenu(players):
-#     while (True):
-#         newPlayerName = requestName("Please enter the name of the new player: \n")
-#         newPlayer = Player(newPlayerName)
-
-#         addPlayerIfNew(players, newPlayer)
-            
-#         if not askUserYNQuestion("Would you like to add another player?"):
-#             return players
-
-# # Removes players from both the players list and the leaderboard list
-# def removePlayersMenu(playersList, leaderboard):
-#     while (True):
-#         removedPlayerName = requestName("Please enter the name of the player you want to remove: \n")
-#         removedPlayer = Player(removedPlayerName)
-
-#         removePlayerIfInPlayersTable(playersList, leaderboard, removedPlayer)
-
-#         if not askUserYNQuestion("Would you ike to remove another player?"):
-#             return playersList, leaderboard
-
-# # Allows the user to input a winner and loser of a match, and updates the leaderboard table
-# # accordingly
-# def recordMatchMenu(players, leaderboard):
-#     winner = requestWinnerOrLoser("winner", players)
-#     loser = requestWinnerOrLoser("loser", players)
-#     leaderboard = updateLeaderboardAfterMatch(winner, loser, leaderboard)
-
-#     print("leaderboard updated!")
-#     return leaderboard
-
-# # Quits the program
-# def quitProgram():
-#     print("Goodbye!")
-#     exit()
-
-# # Starts the interactive mode of the program
-# def clInteractive(players, leaderboard):
-#     players = readPlayers()
-#     leaderboard = readLeaderboard("storedLeaderboard")
-
-#     print("Welcome to TZ Table Tennis (Copyright 2018. All rights reserved) \n")
-    
-#     finished = False
-
-#     while (not finished):
-#         print("Please choose from one of the following options:")
-#         print("1) Add players")
-#         print("2) Remove players")
-#         print("3) Record match")
-#         print("4) See leaderboard")
-#         print("5) Exit \n")
-
-#         choice = raw_input()
-#         print("")
-
-#         if choice == "1":
-#             players = addPlayersMenu(players)
-#         elif choice == "2":
-#             players, leaderboard = removePlayersMenu(players, leaderboard)
-#         elif choice == "3":
-#             leaderboard = recordMatchMenu(players, leaderboard)
-#         elif choice == "4":
-#             seeLeaderboard(leaderboard)
-#         elif choice == "5":
-#             quitProgram()
-#         else:
-#             print("Invalid input. \n")
+@app.route('/')
+def homepage():
+    return render_template('home.html')
