@@ -467,3 +467,9 @@ def leaderboard():
         lb_list.append([l.name, player_list])
 
     return render_template('lb.html', leaderboards=lb_list)
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    # note that we set the 404 status explicitly
+    return render_template('error.html'), 404
