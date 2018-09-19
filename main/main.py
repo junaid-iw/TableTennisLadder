@@ -431,7 +431,6 @@ def leaderboard():
 
     return render_template('lb.html', leaderboards=lb_list)
 
-
 @app.route('/addresult')
 def add_form():
     return render_template('add_result_form.html')
@@ -445,3 +444,6 @@ def add_player():
 
     return leaderboard()
 
+@app.errorhandler(404)
+def page_not_found():
+    return render_template('error.html'), 404
