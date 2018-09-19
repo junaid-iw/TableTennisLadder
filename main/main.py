@@ -1,14 +1,15 @@
-import sys
 import os
+import sys
+sys.path.append('../')
 from player.player import Player
 from players_table.playersTable import PlayersTable
 from leaderboard.leaderboard import Leaderboard
 from flask import Flask
 from flask import render_template
 
+
 # Main method
 def main():
-    
     players = []
     leaderboard = []
     
@@ -290,7 +291,7 @@ def deleteLeaderboard(removedLeaderboardName):
 
 # Displays the help menu
 def showHelp():
-    helpFile = open("help.txt", "r")
+    helpFile = open("../help.txt", "r")
     helpFileContents = helpFile.read()
     print(helpFileContents)
 
@@ -344,7 +345,7 @@ def getCurrentLeaderboard():
 #
 
 def readPlayers():
-    playerNames = readFile("player/storedPlayers.txt")
+    playerNames = readFile("../player/storedPlayers.txt")
     players = []
     for name in playerNames:
         player = Player(name)
@@ -380,7 +381,7 @@ def updatePlayersTable(playersTable):
     playerNames = []
     for player in players:
         playerNames.append(player.getName())
-    updateFile("player/storedPlayers.txt", playerNames)
+    updateFile("../player/storedPlayers.txt", playerNames)
 
 def updateLeaderboard(leaderboard):
     players = leaderboard.getRankings()
@@ -447,6 +448,8 @@ def updateHTML():
         
     return htmlString
 
+if __name__ == "__main__":
+    main()
 
 app = Flask(__name__)
 
