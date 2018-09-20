@@ -4,7 +4,7 @@ sys.path.append('../')
 from player.player import Player
 from players_table.playersTable import PlayersTable
 from leaderboard.leaderboard import Leaderboard
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 
 
 
@@ -38,7 +38,6 @@ def main():
     else:
         print("Invalid input")
 
-    updateHTML()
 
 #
 # ADD PLAYER METHODS
@@ -65,9 +64,6 @@ def addPlayerIfNew(playersTable, newPlayer):
         updatePlayersTable(playersTable)
         print("Player added!")   
 
-#
-# REMOVE PLAYER METHODS
-#
 
 # Removes a player from the current leaderboard
 def removePlayerFromAll(players, leaderboard):
@@ -87,7 +83,7 @@ def removePlayerFromAll(players, leaderboard):
         print("Player removed from championship!")
 
 # Removes a player from all leaderboards and players table (Unix interface)
-def removePlayer(players, leaderboard):
+def removePlayer():
     if len(sys.argv) != 3:
         print("\n'--remove' operator requires 1 parameter (the player to be removed)\n")
         sys.exit(1)
@@ -123,12 +119,6 @@ def removePlayerFromLeaderboardIfPresent(leaderboard, removedPlayer):
     else:
         print("This player is not in the specified leaderboard")
 
-    # if leaderboard.playerInRankings(removedPlayer):
-    #     removePlayerFromLeaderboard(leaderboard, removedPlayer)
-    #     print("Player removed from " + leaderboard.getName())
-    # else:
-    #     print("This player is not in the specified leaderboard")
-
 # Removes player from players table
 def removePlayerFromPlayersTable(playersTable, removedPlayer):
     playersTable.removePlayer(removedPlayer)
@@ -145,34 +135,25 @@ def removePlayerFromLeaderboard(leaderboard, removedPlayer):
 
 # Records a match between two players, updating the leaderboard table (Unix interface)
 def recordMatch(winner, loser):
-    if len(sys.argv) != 4:
-        print("\n'--result' operator requires 2 parameters (name of winner, name of loser)\n")
-        sys.exit(1)
-    
     playersTable = readPlayers()
     leaderboard = getCurrentLeaderboard()
+    winner = Player(winner)
+    loser = Player(loser)
 
-    if winner == loser:
-        print("The winner and loser must be different players")
+    if winner.name == loser.name:
+        return False
+
     elif not playersTable.playerInTable(winner) and playersTable.playerInTable(loser):
-        print("Neither player is part of this league")
-    elif not playersTable.playerInTable(winner):
-        print("The winner is not part of this league")
-    elif not playersTable.playerInTable(loser):
-        print("The loser is not part of this league")
-    else:
-        updateLeaderboardAfterMatch(winner, loser, leaderboard)
-        print("Leaderboard updated!")
+        playersTable.players.append(winner)
+        playersTable.players.append(loser)
 
-# # Requests a winner or a loser
-# def requestWinnerOrLoser(winnerOrLoser, players):
-#     while(True):
-#         player = requestName("Please enter the name of the match " + winnerOrLoser + ": \n")
-#
-#         if (player not in players):
-#             print("This player is not in the league.")
-#         else:
-#             return player
+    elif winner not in playersTable.players:
+        playersTable.players.append(winner)
+
+    elif not playersTable.playerInTable(loser):
+        playersTable.players.append(loser)
+
+    updateLeaderboardAfterMatch(winner, loser, leaderboard)
 
 # Updates the leaderboard list based on a winner and loser of a match
 def updateLeaderboardAfterMatch(winner, loser, leaderboard):
@@ -331,7 +312,6 @@ def getCurrentLeaderboard():
     leaderboardNames = readLeaderboardNames()
     if len(leaderboardNames) == 0:
         print("There are currently no existing leaderboards")
-        sys.exit(1)
 
     currentLeaderboardName = leaderboardNames[0]
     currentLeaderboard = readLeaderboard(currentLeaderboardName)
@@ -344,10 +324,13 @@ def getCurrentLeaderboard():
 def readPlayers():
     playerNames = readFile("../player/storedPlayers.txt")
     players = []
+
     for name in playerNames:
         player = Player(name)
         players.append(player)
+
     playersTable = PlayersTable(players)
+
     return playersTable
 
 def readLeaderboard(leaderboardName):
@@ -407,20 +390,9 @@ def updateFile(filename, contents):
     myFile.close()
 
 
-if __name__ == "__main__":
-    main()
-
-app = Flask(__name__)
-
-
-
-@app.route('/')
-def homepage():
-    return render_template('home.html')
-
-@app.route('/leaderboard')
-def leaderboard():
+def getLeaderboardList():
     leaderboards = getAllLeaderboards()
+
     lb_list = []
 
     for l in leaderboards:
@@ -429,21 +401,54 @@ def leaderboard():
             player_list.append([p, l.rankings.index(p) + 1])
         lb_list.append([l.name, player_list])
 
+    return lb_list
+
+
+if __name__ == "__main__":
+    main()
+
+app = Flask(__name__)
+
+
+@app.route('/')
+def homepage():
+    return render_template('home.html')
+
+@app.route('/leaderboard')
+def leaderboard():
+    lb_list = getLeaderboardList()
+
     return render_template('lb.html', leaderboards=lb_list)
 
+
 @app.route('/addresult')
-def add_form():
+def add_player_form():
     return render_template('add_result_form.html')
 
 
 @app.route('/addresult', methods=['POST'])
-def add_player():
-    winner = request.form['winner'].lower()
-    loser = request.form['loser'].lower()
+def add_result():
+    multiselect = request.form.getlist('player')
+    winner = multiselect[0].capitalize()
+    loser = multiselect[1].capitalize()
     recordMatch(winner, loser)
 
-    return leaderboard()
+    return redirect(url_for("leaderboard"))
+
+
+@app.route('/choose-leaderboard')
+def choose_leaderboard_form():
+    lb_list = getLeaderboardList()
+    return render_template('choose_leaderboard_form.html', leaderboards=lb_list)
+
+
+@app.route('/choose-leaderboard', methods=['POST'])
+def choose_leaderboard():
+    selection = request.form.get('lb_choice')
+    return selection
+
 
 @app.errorhandler(404)
-def page_not_found():
+def page_not_found(e):
     return render_template('error.html'), 404
+
