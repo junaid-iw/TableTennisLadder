@@ -1,141 +1,25 @@
 import os
 import sys
-sys.path.append('../')
 from player.player import Player
-from players_table.playersTable import PlayersTable
 from leaderboard.leaderboard import Leaderboard
+from reader.reader import Reader
 from flask import Flask, render_template, request, redirect, url_for
 
 
+def removePlayer(player_to_remove):
+    removedPlayer = Player(player_to_remove)
 
-# Main method
-def main():
-    players = []
-    leaderboard = []
-    
-    if len(sys.argv) == 1:
-        defaultSeeLeaderboard()
-        sys.exit(1)
-    operator = sys.argv[1]
-    if operator == "--add_player":
-        addPlayer(players)
-    elif operator == "--rm_player":
-        removePlayer(players, leaderboard)
-    elif operator == "--rm_player_all":
-        removePlayerFromAll(players, leaderboard)
-    elif operator == "--result":
-        recordMatch(players, leaderboard)
-    elif operator == "--rank":
-        seeLeaderboard()
-    elif operator == "--change":
-        changeLeaderboard()
-    elif operator == "--add_board":
-        createLeaderboard()
-    elif operator == "--rm_board":
-        removeLeaderboard()
-    elif operator == "--help":
-        showHelp()
-    else:
-        print("Invalid input")
-
-
-#
-# ADD PLAYER METHODS
-#
-
-# Adds a new player (Unix interface)
-def addPlayer(playersTable):
-    if len(sys.argv) != 3:
-        print("\n'--add' operator requires 1 parameter (name of player to be added)\n")
-        sys.exit(1)
-    
-    playersTable = readPlayers()
-    newPlayerName = sys.argv[2]
-    newPlayer = Player(newPlayerName)
-
-    addPlayerIfNew(playersTable, newPlayer)
-
-# Adds a player to the players list, unless they are already in the players list
-def addPlayerIfNew(playersTable, newPlayer):
-    if playersTable.playerInTable(newPlayer):
-            print("This player already in the players list.")
-    else:
-        playersTable.addPlayer(newPlayer)
-        updatePlayersTable(playersTable)
-        print("Player added!")   
-
-
-# Removes a player from the current leaderboard
-def removePlayerFromAll(players, leaderboard):
-    if len(sys.argv) != 3:
-        print("\n'--removeall' operator requires 1 parameters (the player to be removed)\n")
-        sys.exit(1)
-    
-    playersTable = readPlayers()
-    
-    removedPlayerName = sys.argv[2]
-    removedPlayer = Player(removedPlayerName)
-
-    if not playersTable.playerInTable(removedPlayer):
-        print("This player is not in the players list.")
-    else:
-        deletePlayerFromAll(playersTable, removedPlayer)
-        print("Player removed from championship!")
-
-# Removes a player from all leaderboards and players table (Unix interface)
-def removePlayer():
-    if len(sys.argv) != 3:
-        print("\n'--remove' operator requires 1 parameter (the player to be removed)\n")
-        sys.exit(1)
-    
-    playersTable = readPlayers()
-    
-    removedPlayerName = sys.argv[2]
-    removedPlayer = Player(removedPlayerName)
-
-    if not playersTable.playerInTable(removedPlayer):
-        print("This player is not in the players list.")
-    else:
+    try:
         leaderboard = getCurrentLeaderboard()
-        removePlayerFromLeaderboardIfPresent(leaderboard, removedPlayer)
-
-# Removes a player from the players list (and leaderboard list if they're in that list),
-# unless they are not in the players list
-def deletePlayerFromAll(playersTable, removedPlayer):
-    removePlayerFromPlayersTable(playersTable, removedPlayer)
-    
-    leaderboardNames = readLeaderboardNames()
-    for leaderboardName in leaderboardNames:
-        leaderboard = readLeaderboard(leaderboardName)
-        if leaderboard.removePlayer(removedPlayer):
-            updateLeaderboard(leaderboard)
-
-
-# Removes a specified player from the current leaderboard if they are on that leaderboard
-def removePlayerFromLeaderboardIfPresent(leaderboard, removedPlayer):
-    if leaderboard.removePlayer(removedPlayer):
+        leaderboard.removePlayer(removedPlayer)
         updateLeaderboard(leaderboard)
-        print("Player removed from " + leaderboard.getName())
-    else:
-        print("This player is not in the specified leaderboard")
 
-# Removes player from players table
-def removePlayerFromPlayersTable(playersTable, removedPlayer):
-    playersTable.removePlayer(removedPlayer)
-    updatePlayersTable(playersTable)
+    except:
+        print("Error removing player from leaderboard")
 
-# Removes player from leaderboard
-def removePlayerFromLeaderboard(leaderboard, removedPlayer):
-    leaderboard.removePlayer(removedPlayer)
-    updateLeaderboard(leaderboard)
 
-#
-# RECORD MATCH METHODS
-#
-
-# Records a match between two players, updating the leaderboard table (Unix interface)
 def recordMatch(winner, loser):
-    playersTable = readPlayers()
+    playersTable = reader.readPlayers()
     leaderboard = getCurrentLeaderboard()
     winner = Player(winner)
     loser = Player(loser)
@@ -155,67 +39,26 @@ def recordMatch(winner, loser):
 
     updateLeaderboardAfterMatch(winner, loser, leaderboard)
 
-# Updates the leaderboard list based on a winner and loser of a match
+
 def updateLeaderboardAfterMatch(winner, loser, leaderboard):
     leaderboard.updateAfterMatch(winner, loser)
 
     updateLeaderboard(leaderboard)
     return leaderboard
 
-#
-# SEE LEADERBOARD METHODS
-#
 
-def defaultSeeLeaderboard():
-    leaderboard = getCurrentLeaderboard()
-    printLeaderboard(leaderboard)
-
-# Prints the current leaderboard to the terminal (Unix interface)
-def seeLeaderboard():
-    if len(sys.argv) != 2:
-        print("\n'--rank' operator requires no parameters\n")
-        sys.exit(1)
-    
-    leaderboard = getCurrentLeaderboard()
-    printLeaderboard(leaderboard)
-
-# Prints the leaderboard table to the screen
-def printLeaderboard(leaderboard):
-    print(leaderboard.getName() +  ":\n")
-    
-    players = leaderboard.getRankings()
-    if len(players) == 0:
-        print("There are currently no players on this leaderboard")
-    else:
-        for position, player in enumerate(players, start=1):
-            print str(position) + ". " + player.getName()
-    
-    print("")
-
-#
-# CHANGE LEADERBOARD METHODS
-#
-
-# Changes to a new current leaderboard
 def changeLeaderboard(newCurrentLeaderboardName):
-
-    currentLeaderboard = getCurrentLeaderboard()
-    leaderboardNames = readLeaderboardNames()
+    leaderboardNames = reader.readLeaderboardNames()
 
     if newCurrentLeaderboardName not in leaderboardNames:
         print("The specified leaderboard does not exist")
 
-    elif newCurrentLeaderboardName == currentLeaderboard.getName():
-        print("The specified leaderboard is already the current leaderboard")
-
     else:
         reorderLeaderboardNames(newCurrentLeaderboardName, leaderboardNames)
-        print("Current leaderboard changed to " + newCurrentLeaderboardName)
 
 
-# Creates a new leaderboard and makes it the current leaderboard
 def createLeaderboard(newLeaderboardName):
-    leaderboardNames = readLeaderboardNames()
+    leaderboardNames = reader.readLeaderboardNames()
 
     if newLeaderboardName in leaderboardNames:
         print("This leaderboard already exists")
@@ -229,14 +72,13 @@ def createLeaderboard(newLeaderboardName):
         print("Leaderboard added!")
 
 
-# Removes a specified leaderboard if it exists
 def removeLeaderboard():
     if len(sys.argv) != 3:
         print("\n'--new' operator requires 1 parameter (the leaderboard to be changed to)\n")
         sys.exit(1)
     
     removedLeaderboardName = sys.argv[2]
-    leaderboardNames = readLeaderboardNames()
+    leaderboardNames = reader.readLeaderboardNames()
 
     if removedLeaderboardName not in leaderboardNames:
         print("This leaderboard does not exist")
@@ -244,105 +86,35 @@ def removeLeaderboard():
         deleteLeaderboard(removedLeaderboardName)
         print("Leaderboard removed!")
 
-# Removes a specified leaderboard
+
 def deleteLeaderboard(removedLeaderboardName):
-    leaderboardNames = readLeaderboardNames()
+    leaderboardNames = reader.readLeaderboardNames()
     leaderboardNames.remove(removedLeaderboardName)
     os.remove("../leaderboard/" + removedLeaderboardName + ".txt")
-    updateLeaderboardNames(leaderboardNames)    
-
-#
-# SHOW HELP METHODS
-#
-
-# Displays the help menu
-def showHelp():
-    helpFile = open("../help.txt", "r")
-    helpFileContents = helpFile.read()
-    print(helpFileContents)
+    updateLeaderboardNames(leaderboardNames)
 
 
-#
-# AUXILLARY METHODS
-#
-
-# Asks the user a yes/no question, returning false if anything but 'y' is entered
-# THIS IS FOR INTERACTIVE MODE
-def askUserYNQuestion(question):
-    print(question + " (y/n) \n")
-    choice = raw_input()
-    print("")
-    if choice == "y":
-        return True
-    else:    # Stops the loop if anything but y entered
-        return False
-
-# Requests the name of a player from the user
-def requestName(prompt):
-    print(prompt)
-    player = raw_input()
-    print("")
-    return player
-
-# Returns a list of all the leaderboards
 def getAllLeaderboards():
-    leaderboardNames = readLeaderboardNames()
+    leaderboardNames = reader.readLeaderboardNames()
     allLeaderboards = []
 
     for name in leaderboardNames:
-        leaderboard = readLeaderboard(name)
+        leaderboard = reader.readLeaderboard(name)
         allLeaderboards.append(leaderboard)
 
     return allLeaderboards
 
-# Returns the current leaderboard
+
 def getCurrentLeaderboard():
-    leaderboardNames = readLeaderboardNames()
+    leaderboardNames = reader.readLeaderboardNames()
     if len(leaderboardNames) == 0:
         print("There are currently no existing leaderboards")
 
     currentLeaderboardName = leaderboardNames[0]
-    currentLeaderboard = readLeaderboard(currentLeaderboardName)
+    currentLeaderboard = reader.readLeaderboard(currentLeaderboardName)
+
     return currentLeaderboard
 
-#
-# READ FILE METHODS
-#
-
-def readPlayers():
-    playerNames = readFile("../player/storedPlayers.txt")
-    players = []
-
-    for name in playerNames:
-        player = Player(name)
-        players.append(player)
-
-    playersTable = PlayersTable(players)
-
-    return playersTable
-
-def readLeaderboard(leaderboardName):
-    playerNames = readFile("../leaderboard/" + leaderboardName + ".txt")
-    players = []
-    for name in playerNames:
-        player = Player(name)
-        players.append(player)
-    leaderboard = Leaderboard(leaderboardName, players)
-    return leaderboard
-
-def readLeaderboardNames():
-    leaderboardNames = readFile("../leaderboard/leaderboardNames.txt")
-    return leaderboardNames
-
-def readFile(filename):
-    myFile = open(filename, "r")
-    contents = myFile.read().splitlines()
-    myFile.close()
-    return contents
-
-#
-# WRITE FILE METHODS
-#
 
 def updatePlayersTable(playersTable):
     players = playersTable.getPlayers()
@@ -350,6 +122,7 @@ def updatePlayersTable(playersTable):
     for player in players:
         playerNames.append(player.getName())
     updateFile("../player/storedPlayers.txt", playerNames)
+
 
 def updateLeaderboard(leaderboard):
     players = leaderboard.getRankings()
@@ -359,10 +132,11 @@ def updateLeaderboard(leaderboard):
     leaderboardName = leaderboard.getName()
     updateFile("../leaderboard/" + leaderboardName + ".txt", playerNames)
 
+
 def updateLeaderboardNames(leaderboardNames):
     updateFile("../leaderboard/leaderboardNames.txt", leaderboardNames)
 
-# Reorders the leaderboardNames.txt file so the current leaderboard's name is first
+
 def reorderLeaderboardNames(newCurrentLeaderboardName, leaderboardNames):
     if newCurrentLeaderboardName in leaderboardNames:
         newCurrentLearderboardNamePosition = leaderboardNames.index(newCurrentLeaderboardName)
@@ -370,6 +144,7 @@ def reorderLeaderboardNames(newCurrentLeaderboardName, leaderboardNames):
     else:
         reorderedLeaderboardNames = [newCurrentLeaderboardName] + leaderboardNames
     updateFile("../leaderboard/leaderboardNames.txt", reorderedLeaderboardNames)
+
 
 def updateFile(filename, contents):
     myFile = open(filename, "w")
@@ -392,9 +167,7 @@ def getLeaderboardList():
     return lb_list
 
 
-if __name__ == "__main__":
-    main()
-
+reader = Reader()
 app = Flask(__name__)
 
 
@@ -436,6 +209,7 @@ def modify_leaderboard_form():
 def modify_leaderboard():
     new_leaderboard_name = request.form.get('new_lb_name')
     delete_leaderboard_name = request.form.get('delete_lb_name')
+    delete_player_name = request.form.get('delete_player_name')
 
     if new_leaderboard_name:
         createLeaderboard(new_leaderboard_name)
@@ -443,9 +217,12 @@ def modify_leaderboard():
     if delete_leaderboard_name:
         deleteLeaderboard(delete_leaderboard_name)
 
+    if delete_player_name:
+        removePlayer(delete_player_name)
+
     return redirect(url_for('leaderboard'))
+
 
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('error.html'), 404
-
