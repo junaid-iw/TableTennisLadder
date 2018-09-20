@@ -418,35 +418,23 @@ def leaderboard():
     return render_template('lb.html', leaderboards=lb_list)
 
 
-@app.route('/addresult')
-def add_player_form():
-    return render_template('add_result_form.html')
+@app.route('/add-score')
+def new_add_player_form():
+    lb_list = getLeaderboardList()
 
+    return render_template('new_add_player_form.html', leaderboards=lb_list)
 
-@app.route('/addresult', methods=['POST'])
-def add_result():
+@app.route('/add-score', methods=['POST'])
+def new_add_player():
+    lb_choice = request.form.get('lb_choice')
     multiselect = request.form.getlist('player')
+    changeLeaderboard(lb_choice)
+
     winner = multiselect[0].capitalize()
     loser = multiselect[1].capitalize()
     recordMatch(winner, loser)
 
-    return redirect(url_for("leaderboard"))
-
-
-@app.route('/choose-leaderboard')
-def choose_leaderboard_form():
-    lb_list = getLeaderboardList()
-
-    return render_template('choose_leaderboard_form.html', leaderboards=lb_list)
-
-
-@app.route('/choose-leaderboard', methods=['POST'])
-def choose_leaderboard():
-    selection = request.form.get('lb_choice')
-    changeLeaderboard(selection)
-
-    return redirect(url_for('add_result'))
-
+    return redirect(url_for('leaderboard'))
 
 @app.errorhandler(404)
 def page_not_found(e):
