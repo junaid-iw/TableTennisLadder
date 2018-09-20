@@ -197,25 +197,21 @@ def printLeaderboard(leaderboard):
 #
 
 # Changes to a new current leaderboard
-def changeLeaderboard():
-    if len(sys.argv) != 3:
-        print("\n'--change' operator requires 1 parameter (the leaderboard to be changed to)\n")
-        sys.exit(1)
+def changeLeaderboard(newCurrentLeaderboardName):
 
-    newCurrentLeaderboardName = sys.argv[2]
     currentLeaderboard = getCurrentLeaderboard()
     leaderboardNames = readLeaderboardNames()
+
     if newCurrentLeaderboardName not in leaderboardNames:
         print("The specified leaderboard does not exist")
+
     elif newCurrentLeaderboardName == currentLeaderboard.getName():
         print("The specified leaderboard is already the current leaderboard")
+
     else:
         reorderLeaderboardNames(newCurrentLeaderboardName, leaderboardNames)
         print("Current leaderboard changed to " + newCurrentLeaderboardName)
 
-#
-# CREATE LEADERBOARD METHODS
-#
 
 # Creates a new leaderboard and makes it the current leaderboard
 def createLeaderboard():
