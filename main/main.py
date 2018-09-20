@@ -4,7 +4,7 @@ sys.path.append('../')
 from player.player import Player
 from players_table.playersTable import PlayersTable
 from leaderboard.leaderboard import Leaderboard
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 
 
 
@@ -38,7 +38,6 @@ def main():
     else:
         print("Invalid input")
 
-    updateHTML()
 
 #
 # ADD PLAYER METHODS
@@ -145,34 +144,22 @@ def removePlayerFromLeaderboard(leaderboard, removedPlayer):
 
 # Records a match between two players, updating the leaderboard table (Unix interface)
 def recordMatch(winner, loser):
-    if len(sys.argv) != 4:
-        print("\n'--result' operator requires 2 parameters (name of winner, name of loser)\n")
-        sys.exit(1)
-    
     playersTable = readPlayers()
     leaderboard = getCurrentLeaderboard()
+    winner = Player(winner)
+    loser = Player(loser)
 
     if winner == loser:
         print("The winner and loser must be different players")
     elif not playersTable.playerInTable(winner) and playersTable.playerInTable(loser):
         print("Neither player is part of this league")
-    elif not playersTable.playerInTable(winner):
+    elif winner not in playersTable.players:
         print("The winner is not part of this league")
     elif not playersTable.playerInTable(loser):
         print("The loser is not part of this league")
     else:
         updateLeaderboardAfterMatch(winner, loser, leaderboard)
         print("Leaderboard updated!")
-
-# # Requests a winner or a loser
-# def requestWinnerOrLoser(winnerOrLoser, players):
-#     while(True):
-#         player = requestName("Please enter the name of the match " + winnerOrLoser + ": \n")
-#
-#         if (player not in players):
-#             print("This player is not in the league.")
-#         else:
-#             return player
 
 # Updates the leaderboard list based on a winner and loser of a match
 def updateLeaderboardAfterMatch(winner, loser, leaderboard):
@@ -331,7 +318,6 @@ def getCurrentLeaderboard():
     leaderboardNames = readLeaderboardNames()
     if len(leaderboardNames) == 0:
         print("There are currently no existing leaderboards")
-        sys.exit(1)
 
     currentLeaderboardName = leaderboardNames[0]
     currentLeaderboard = readLeaderboard(currentLeaderboardName)
@@ -344,10 +330,13 @@ def getCurrentLeaderboard():
 def readPlayers():
     playerNames = readFile("../player/storedPlayers.txt")
     players = []
+
     for name in playerNames:
         player = Player(name)
         players.append(player)
+
     playersTable = PlayersTable(players)
+
     return playersTable
 
 def readLeaderboard(leaderboardName):
@@ -413,7 +402,6 @@ if __name__ == "__main__":
 app = Flask(__name__)
 
 
-
 @app.route('/')
 def homepage():
     return render_template('home.html')
@@ -421,6 +409,7 @@ def homepage():
 @app.route('/leaderboard')
 def leaderboard():
     leaderboards = getAllLeaderboards()
+
     lb_list = []
 
     for l in leaderboards:
@@ -431,19 +420,23 @@ def leaderboard():
 
     return render_template('lb.html', leaderboards=lb_list)
 
+
 @app.route('/addresult')
 def add_form():
     return render_template('add_result_form.html')
 
 
 @app.route('/addresult', methods=['POST'])
-def add_player():
-    winner = request.form['winner'].lower()
-    loser = request.form['loser'].lower()
+def add_result():
+    multiselect = request.form.getlist('player')
+    winner = multiselect[0].capitalize()
+    loser = multiselect[1].capitalize()
     recordMatch(winner, loser)
 
-    return leaderboard()
+    return redirect(url_for("leaderboard"))
+
 
 @app.errorhandler(404)
-def page_not_found():
+def page_not_found(e):
     return render_template('error.html'), 404
+
