@@ -3,93 +3,25 @@
         <title>Leaderboard</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
         <link href="https://fonts.googleapis.com/css?family=Raleway:300" rel="stylesheet">
-        <style>
-        /* Style in-line for now */
-        html,body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Raleway', sans-serif;
-            background-color: #ffffffd2;
-
-        }
-
-        div {
-            padding: 10px;
-        }
-
-        #nav {
-            z-index:99;
-            width: 100%;
-            overflow: hidden;
-            top: 0;
-            background-color: #333f48;
-            padding: 15px;
-            position: fixed;
-            border-bottom: 4px solid rgb(227, 82, 5);
-            color: white;
-            }
-
-        #main {
-            margin-top: 120px;
-            }
-
-        .leaderboard {
-            margin: 0 auto;
-            min-width: 100px;
-            max-width: 600px;
-            text-align: center;
-            color: black;
-            background-color: #ffffff;
-            border: 1px solid rgb(218, 218, 218);
-            border-radius: 7px;
-            margin-bottom: 110px;
-            box-shadow: 3px 6px #dedcdc
-        }
-
-.row:nth-child(odd) {
-    background: #e0e0e080;
-    }
-
-.row:nth-child(1) {
-    font-size: 36px;
-    background-color: #50D25F;
-    color: white;
-    }
-        </style>
     </head>
+    {% include 'navbar.html' %}
     <body>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#">Team 1</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                <li class="nav-item active">
-                    <a class="nav-link" href="/">About<span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="leaderboard">Leaderboard</a>
-                </li>
-                </ul>
-            </div>
-        </nav>
-    <div id="main">
-    {% for lb in leaderboards %}
-        <div class="leaderboard">
-        <span style="position: relative; top: -80px; font-size: 150px;">&#x1F3C6;</span>
-            <h1 style="margin-top: -50px">{{lb[0]}}</h1>
-                <div class="results">
-                    {% for player in lb[1] %}
-                        <div class="row">
-                            <div style="margin: 0; padding: 10; float:left;">{{player[1]}}</div>
-                            <div>{{player[0].name}}</div>
-                        </div>
-                    {% endfor %}
+        <div id="main">
+        {% for lb in leaderboards %}
+            <div class="leaderboard">
+            <span style="position: relative; top: -80px; font-size: 150px;">&#x1F3C6;</span>
+                <h1 style="margin-top: -50px">{{lb[0]}}</h1>
+                    <div class="results">
+                        {% for player in lb[1] %}
+                            <div class="row">
+                                <div style="margin: 0; padding: 10; float:left;">{{player[1]}}</div>
+                                <div>{{player[0].name}}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
-        </div>
-    {% endfor %}
+        {% endfor %}
     </body>
 </html>
 

@@ -410,6 +410,7 @@ app = Flask(__name__)
 def homepage():
     return render_template('home.html')
 
+
 @app.route('/leaderboard')
 def leaderboard():
     lb_list = getLeaderboardList()
@@ -435,13 +436,16 @@ def add_result():
 @app.route('/choose-leaderboard')
 def choose_leaderboard_form():
     lb_list = getLeaderboardList()
+
     return render_template('choose_leaderboard_form.html', leaderboards=lb_list)
 
 
 @app.route('/choose-leaderboard', methods=['POST'])
 def choose_leaderboard():
     selection = request.form.get('lb_choice')
-    return selection
+    changeLeaderboard(selection)
+
+    return redirect(url_for('add_result'))
 
 
 @app.errorhandler(404)
