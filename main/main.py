@@ -64,9 +64,6 @@ def addPlayerIfNew(playersTable, newPlayer):
         updatePlayersTable(playersTable)
         print("Player added!")   
 
-#
-# REMOVE PLAYER METHODS
-#
 
 # Removes a player from the current leaderboard
 def removePlayerFromAll(players, leaderboard):
@@ -86,7 +83,7 @@ def removePlayerFromAll(players, leaderboard):
         print("Player removed from championship!")
 
 # Removes a player from all leaderboards and players table (Unix interface)
-def removePlayer(players, leaderboard):
+def removePlayer():
     if len(sys.argv) != 3:
         print("\n'--remove' operator requires 1 parameter (the player to be removed)\n")
         sys.exit(1)
@@ -121,12 +118,6 @@ def removePlayerFromLeaderboardIfPresent(leaderboard, removedPlayer):
         print("Player removed from " + leaderboard.getName())
     else:
         print("This player is not in the specified leaderboard")
-
-    # if leaderboard.playerInRankings(removedPlayer):
-    #     removePlayerFromLeaderboard(leaderboard, removedPlayer)
-    #     print("Player removed from " + leaderboard.getName())
-    # else:
-    #     print("This player is not in the specified leaderboard")
 
 # Removes player from players table
 def removePlayerFromPlayersTable(playersTable, removedPlayer):
@@ -448,15 +439,13 @@ def add_result():
 @app.route('/choose-leaderboard')
 def choose_leaderboard_form():
     lb_list = getLeaderboardList()
-
     return render_template('choose_leaderboard_form.html', leaderboards=lb_list)
 
 
 @app.route('/choose-leaderboard', methods=['POST'])
 def choose_leaderboard():
     selection = request.form.get('lb_choice')
-    print selection
-    return "hello world"
+    return selection
 
 
 @app.errorhandler(404)
