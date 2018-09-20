@@ -1,2 +1,2 @@
-LittleChamp
-BigChamp
+Global
+Grads

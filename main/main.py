@@ -149,17 +149,20 @@ def recordMatch(winner, loser):
     winner = Player(winner)
     loser = Player(loser)
 
-    if winner == loser:
-        print("The winner and loser must be different players")
+    if winner.name == loser.name:
+        return False
+
     elif not playersTable.playerInTable(winner) and playersTable.playerInTable(loser):
-        print("Neither player is part of this league")
+        playersTable.players.append(winner)
+        playersTable.players.append(loser)
+
     elif winner not in playersTable.players:
-        print("The winner is not part of this league")
+        playersTable.players.append(winner)
+
     elif not playersTable.playerInTable(loser):
-        print("The loser is not part of this league")
-    else:
-        updateLeaderboardAfterMatch(winner, loser, leaderboard)
-        print("Leaderboard updated!")
+        playersTable.players.append(loser)
+
+    updateLeaderboardAfterMatch(winner, loser, leaderboard)
 
 # Updates the leaderboard list based on a winner and loser of a match
 def updateLeaderboardAfterMatch(winner, loser, leaderboard):
