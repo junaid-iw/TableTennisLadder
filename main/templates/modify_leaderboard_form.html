@@ -1,0 +1,21 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css?family=Raleway:300" rel="stylesheet">
+
+{% include 'navbar.html' %}
+
+<form method="POST">
+    <div class="form-group">
+        <label for="new_lb">New Leaderboard</label>
+        <input name="new_lb_name" id="new_lb" placeholder="Leaderboard Name" class="form-control">
+        <div>
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="delete_lb">Delete Leaderboard</label>
+        <input name="delete_lb_name" id="delete_lb" placeholder="Leaderboard Name" class="form-control">
+        <div>
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+    </div>
+</form>

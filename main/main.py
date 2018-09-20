@@ -214,12 +214,7 @@ def changeLeaderboard(newCurrentLeaderboardName):
 
 
 # Creates a new leaderboard and makes it the current leaderboard
-def createLeaderboard():
-    if len(sys.argv) != 3:
-        print("\n'--new' operator requires 1 parameter (the leaderboard to be changed to)\n")
-        sys.exit(1)
-    
-    newLeaderboardName = sys.argv[2]
+def createLeaderboard(newLeaderboardName):
     leaderboardNames = readLeaderboardNames()
 
     if newLeaderboardName in leaderboardNames:
@@ -233,9 +228,6 @@ def createLeaderboard():
         reorderLeaderboardNames(newLeaderboardName, leaderboardNames)
         print("Leaderboard added!")
 
-#
-# REMOVE LEADERBOARD METHODS
-#
 
 # Removes a specified leaderboard if it exists
 def removeLeaderboard():
@@ -433,6 +425,23 @@ def new_add_player():
     winner = multiselect[0].capitalize()
     loser = multiselect[1].capitalize()
     recordMatch(winner, loser)
+
+    return redirect(url_for('leaderboard'))
+
+@app.route('/modify-leaderboard')
+def modify_leaderboard_form():
+    return render_template('modify_leaderboard_form.html')
+
+@app.route('/modify-leaderboard', methods=['POST'])
+def modify_leaderboard():
+    new_leaderboard_name = request.form.get('new_lb_name')
+    delete_leaderboard_name = request.form.get('delete_lb_name')
+
+    if new_leaderboard_name:
+        createLeaderboard(new_leaderboard_name)
+
+    if delete_leaderboard_name:
+        deleteLeaderboard(delete_leaderboard_name)
 
     return redirect(url_for('leaderboard'))
 
