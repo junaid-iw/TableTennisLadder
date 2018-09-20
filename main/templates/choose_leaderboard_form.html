@@ -1,0 +1,8 @@
+<form method="POST">
+    <select name="lb_choice">
+        {% for lb in leaderboards %}
+            <option value="{{lb[0]}}">{{lb[0]}}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Save</button>
+</form>

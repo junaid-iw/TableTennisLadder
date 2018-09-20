@@ -399,6 +399,20 @@ def updateFile(filename, contents):
     myFile.close()
 
 
+def getLeaderboardList():
+    leaderboards = getAllLeaderboards()
+
+    lb_list = []
+
+    for l in leaderboards:
+        player_list = []
+        for p in l.rankings:
+            player_list.append([p, l.rankings.index(p) + 1])
+        lb_list.append([l.name, player_list])
+
+    return lb_list
+
+
 if __name__ == "__main__":
     main()
 
@@ -411,21 +425,13 @@ def homepage():
 
 @app.route('/leaderboard')
 def leaderboard():
-    leaderboards = getAllLeaderboards()
-
-    lb_list = []
-
-    for l in leaderboards:
-        player_list = []
-        for p in l.rankings:
-            player_list.append([p, l.rankings.index(p) + 1])
-        lb_list.append([l.name, player_list])
+    lb_list = getLeaderboardList()
 
     return render_template('lb.html', leaderboards=lb_list)
 
 
 @app.route('/addresult')
-def add_form():
+def add_player_form():
     return render_template('add_result_form.html')
 
 
@@ -437,6 +443,20 @@ def add_result():
     recordMatch(winner, loser)
 
     return redirect(url_for("leaderboard"))
+
+
+@app.route('/choose-leaderboard')
+def choose_leaderboard_form():
+    lb_list = getLeaderboardList()
+
+    return render_template('choose_leaderboard_form.html', leaderboards=lb_list)
+
+
+@app.route('/choose-leaderboard', methods=['POST'])
+def choose_leaderboard():
+    selection = request.form.get('lb_choice')
+    print selection
+    return "hello world"
 
 
 @app.errorhandler(404)
