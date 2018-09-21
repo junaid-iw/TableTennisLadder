@@ -25,6 +25,9 @@ def recordMatch(winner, loser):
 
     if winner.name == loser.name:
         return "Winner name and loser name are the same"
+    
+    elif not winner.name or not loser.name:
+        return "Please enter a winner and a loser name"
 
     elif not playersTable.playerInTable(winner) and playersTable.playerInTable(loser):
         playersTable.players.append(winner)
