@@ -183,13 +183,13 @@ def leaderboard():
     return render_template('lb.html', leaderboards=lb_list)
 
 
-@app.route('/add-score')
-def new_add_player_form():
-    lb_list = getLeaderboardList()
+# @app.route('/add-score')
+# def new_add_player_form():
+#     lb_list = getLeaderboardList()
 
-    return render_template('new_add_player_form.html', leaderboards=lb_list)
+#     return render_template('new_add_player_form.html', leaderboards=lb_list)
 
-@app.route('/add-score', methods=['POST'])
+@app.route('/leaderboard', methods=['POST'])
 def new_add_player():
     lb_choice = request.form.get('lb_choice')
     multiselect = request.form.getlist('player')
