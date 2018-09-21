@@ -14,7 +14,7 @@ def removePlayer(player_to_remove):
         updateLeaderboard(leaderboard)
 
     except:
-        print("Error removing player from leaderboard")
+        return "Error removing player from leaderboard"
 
 
 def recordMatch(winner, loser):
@@ -172,12 +172,25 @@ def leaderboard():
 def new_add_player():
     lb_choice = request.form.get('lb_choice')
     multiselect = request.form.getlist('player')
-    changeLeaderboard(lb_choice)
+    new_leaderboard_name = request.form.get('new_lb_name')
+    delete_leaderboard_name = request.form.get('delete_lb_name')
+    delete_player_name = request.form.get('delete_player_name')
+    res = None
 
-    winner = multiselect[0].capitalize()
-    loser = multiselect[1].capitalize()
+    if multiselect:
+        winner = multiselect[0].capitalize()
+        loser = multiselect[1].capitalize()
+        changeLeaderboard(lb_choice)
+        res = recordMatch(winner, loser)
+    if new_leaderboard_name:
+        res = createLeaderboard(new_leaderboard_name)
 
-    res = recordMatch(winner, loser)
+    if delete_leaderboard_name:
+        res = deleteLeaderboard(delete_leaderboard_name)
+
+    if delete_player_name:
+        res = removePlayer(delete_player_name)
+
     if res:
         flash(res)
 
