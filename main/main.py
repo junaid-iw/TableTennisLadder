@@ -1,9 +1,8 @@
 import os
-import sys
 from player.player import Player
 from leaderboard.leaderboard import Leaderboard
 from reader.reader import Reader
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 
 
 def removePlayer(player_to_remove):
@@ -25,7 +24,7 @@ def recordMatch(winner, loser):
     loser = Player(loser)
 
     if winner.name == loser.name:
-        return False
+        return "Winner name and loser name are the same"
 
     elif not playersTable.playerInTable(winner) and playersTable.playerInTable(loser):
         playersTable.players.append(winner)
@@ -51,7 +50,7 @@ def changeLeaderboard(newCurrentLeaderboardName):
     leaderboardNames = reader.readLeaderboardNames()
 
     if newCurrentLeaderboardName not in leaderboardNames:
-        print("The specified leaderboard does not exist")
+        return "This leaderboard does not exist"
 
     else:
         reorderLeaderboardNames(newCurrentLeaderboardName, leaderboardNames)
@@ -61,30 +60,15 @@ def createLeaderboard(newLeaderboardName):
     leaderboardNames = reader.readLeaderboardNames()
 
     if newLeaderboardName in leaderboardNames:
-        print("This leaderboard already exists")
+        return "This leaderboard already exists"
     elif newLeaderboardName == "leaderboardNames":
-        print("This name is not permitted")
+        return "This name is not permitted"
     else:
         newLeaderboard = Leaderboard(newLeaderboardName, [])
         updateLeaderboard(newLeaderboard)
 
         reorderLeaderboardNames(newLeaderboardName, leaderboardNames)
         print("Leaderboard added!")
-
-
-def removeLeaderboard():
-    if len(sys.argv) != 3:
-        print("\n'--new' operator requires 1 parameter (the leaderboard to be changed to)\n")
-        sys.exit(1)
-    
-    removedLeaderboardName = sys.argv[2]
-    leaderboardNames = reader.readLeaderboardNames()
-
-    if removedLeaderboardName not in leaderboardNames:
-        print("This leaderboard does not exist")
-    else:
-        deleteLeaderboard(removedLeaderboardName)
-        print("Leaderboard removed!")
 
 
 def deleteLeaderboard(removedLeaderboardName):
@@ -108,7 +92,7 @@ def getAllLeaderboards():
 def getCurrentLeaderboard():
     leaderboardNames = reader.readLeaderboardNames()
     if len(leaderboardNames) == 0:
-        print("There are currently no existing leaderboards")
+        return "There are currently no existing leaderboards"
 
     currentLeaderboardName = leaderboardNames[0]
     currentLeaderboard = reader.readLeaderboard(currentLeaderboardName)
@@ -169,6 +153,7 @@ def getLeaderboardList():
 
 reader = Reader()
 app = Flask(__name__)
+app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
 
 @app.route('/')
@@ -183,12 +168,6 @@ def leaderboard():
     return render_template('lb.html', leaderboards=lb_list)
 
 
-# @app.route('/add-score')
-# def new_add_player_form():
-#     lb_list = getLeaderboardList()
-
-#     return render_template('new_add_player_form.html', leaderboards=lb_list)
-
 @app.route('/leaderboard', methods=['POST'])
 def new_add_player():
     lb_choice = request.form.get('lb_choice')
@@ -197,13 +176,18 @@ def new_add_player():
 
     winner = multiselect[0].capitalize()
     loser = multiselect[1].capitalize()
-    recordMatch(winner, loser)
+
+    res = recordMatch(winner, loser)
+    if res:
+        flash(res)
 
     return redirect(url_for('leaderboard'))
+
 
 @app.route('/modify-leaderboard')
 def modify_leaderboard_form():
     return render_template('modify_leaderboard_form.html')
+
 
 @app.route('/modify-leaderboard', methods=['POST'])
 def modify_leaderboard():
