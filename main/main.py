@@ -30,7 +30,7 @@ def recordMatch(winner, loser):
     elif not winner.name or not loser.name:
         return "Please enter a winner and a loser name"
 
-    elif len(winner.name) or len(loser.name) > 10:
+    elif len(winner.name) > 10 or len(loser.name) > 10:
         return "Name input must be between 0 and 10 characters"
 
     elif not playersTable.playerInTable(winner) and playersTable.playerInTable(loser):
