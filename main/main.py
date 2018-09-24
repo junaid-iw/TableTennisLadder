@@ -10,7 +10,8 @@ def removePlayer(player_to_remove):
 
     try:
         leaderboard = getCurrentLeaderboard()
-        leaderboard.removePlayer(removedPlayer)
+        if not leaderboard.removePlayer(removedPlayer):
+            return "Player is not in leaderboard"
         updateLeaderboard(leaderboard)
 
     except:
@@ -71,15 +72,19 @@ def createLeaderboard(newLeaderboardName):
         updateLeaderboard(newLeaderboard)
 
         reorderLeaderboardNames(newLeaderboardName, leaderboardNames)
-        print("Leaderboard added!")
+        return "Leaderboard added!"
 
 
 def deleteLeaderboard(removedLeaderboardName):
     leaderboardNames = reader.readLeaderboardNames()
-    leaderboardNames.remove(removedLeaderboardName)
-    os.remove("../leaderboard/" + removedLeaderboardName + ".txt")
-    updateLeaderboardNames(leaderboardNames)
 
+    try:
+        leaderboardNames.remove(removedLeaderboardName)
+        os.remove("../leaderboard/" + removedLeaderboardName + ".txt")
+        updateLeaderboardNames(leaderboardNames)
+
+    except:
+        return "Leaderboard does not exist."
 
 def getAllLeaderboards():
     leaderboardNames = reader.readLeaderboardNames()
