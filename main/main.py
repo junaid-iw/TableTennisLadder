@@ -67,6 +67,8 @@ def createLeaderboard(newLeaderboardName):
         return "This leaderboard already exists"
     elif newLeaderboardName == "leaderboardNames":
         return "This name is not permitted"
+    elif len(newLeaderboardName) > 20:
+        return "This input is not valid"
     else:
         newLeaderboard = Leaderboard(newLeaderboardName, [])
         updateLeaderboard(newLeaderboard)
