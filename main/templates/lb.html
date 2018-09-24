@@ -10,98 +10,98 @@
         <ul class="card">
             <div class="card-body">
                 <form method="POST">
-                    <div class="form-inline">
-                        <div class='col-xs-3'>
-                            <p><a class="btn btn-primary" data-toggle="collapse" href="#collapseAddResult" role="button" aria-expanded="false" aria-controls="collapseAddResult">Add Score</a></p>
-                        </div>
-                        <div class='col-xs-3'>
-                            <p><a class="btn btn-primary" data-toggle="collapse" href="#collapseNewLeaderboard" role="button" aria-expanded="false" aria-controls="collapseNewLeaderboard">New Leaderboard</a></p>
-                        </div>
-                        <div class='col-xs-3'>
-                            <p><a class="btn btn-primary" data-toggle="collapse" href="#collapseDeleteLeaderboard" role="button" aria-expanded="false" aria-controls="collapseDeleteLeaderboard">Delete Leaderboard</a></p>
-                        </div>
-                        <div class='col-xs-3'>
-                            <p><a class="btn btn-primary" data-toggle="collapse" href="#collapseDeletePlayer" role="button" aria-expanded="false" aria-controls="collapseDeletePlayer">Delete Player</a></p>
-                        </div>
-                            <div class="card-body">
-                                <div class="collapse" id="collapseAddResult">
-                                    <div class="form-inline">
-                                        <div class="col-xs-3">
-                                            <fieldset>
-                                                <input name="player" id="add_score" placeholder="Winner" class="form-control">
-                                                <input name="player" placeholder="Loser" class="form-control">
-                                            </fieldset>
-                                        </div>
-
-                                        <select name="lb_choice" id="lb_choice" class="form-control">
-                                            {% for lb in leaderboards %}
-                                                <option value="{{lb[0]}}">{{lb[0]}}</option>
-                                            {% endfor %}
-                                        </select>
-                                        <div class="col-xs-3">
-                                            <button type="submit" class="btn btn-primary">Save</button>
-                                        </div>
-                                    </div>
+            <div class="form-inline">
+                <div class='col-xs-3'>
+                    <p><a class="btn btn-primary" data-toggle="collapse" href="#collapseAddResult" role="button" aria-expanded="false" aria-controls="collapseAddResult">Add Score</a></p>
+                </div>
+                <div class='col-xs-3'>
+                    <p><a class="btn btn-primary" data-toggle="collapse" href="#collapseNewLeaderboard" role="button" aria-expanded="false" aria-controls="collapseNewLeaderboard">New Leaderboard</a></p>
+                </div>
+                <div class='col-xs-3'>
+                    <p><a class="btn btn-primary" data-toggle="collapse" href="#collapseDeleteLeaderboard" role="button" aria-expanded="false" aria-controls="collapseDeleteLeaderboard">Delete Leaderboard</a></p>
+                </div>
+                <div class='col-xs-3'>
+                    <p><a class="btn btn-primary" data-toggle="collapse" href="#collapseDeletePlayer" role="button" aria-expanded="false" aria-controls="collapseDeletePlayer">Delete Player</a></p>
+                </div>
+                    <div class="card-body">
+                        <div class="collapse" id="collapseAddResult">
+                            <div class="form-inline">
+                                <div class="col-xs-3">
+                                    <fieldset>
+                                        <input name="player" id="add_score" placeholder="Winner" class="form-control">
+                                        <input name="player" placeholder="Loser" class="form-control">
+                                    </fieldset>
                                 </div>
-                            </div>
-                        </div>
 
-                        <div class="collapse" id="collapseNewLeaderboard">
-                            <div class="card card-body">
-                                <div class="form-inline">
-                                    <label for="new_lb">New Leaderboard</label>
-                                    <div class='col-xs-3'>
-                                        <input name="new_lb_name" id="new_lb" placeholder="Leaderboard Name" class="form-control">
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Save</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="collapse" id="collapseDeleteLeaderboard">
-                            <div class="card card-body">
-                                <div class="form-inline">
-                                    <label for="delete_lb">Delete Leaderboard</label>
-                                    <div class='col-xs-3'>
-                                        <input name="delete_lb_name" id="delete_lb" placeholder="Leaderboard Name" class="form-control">
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Save</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="collapse" id="collapseDeletePlayer">
-                            <div class="card card-body">
-                                <div class="form-inline">
-                                    <label for="delete_player">Delete Player</label>
-                                    <div class='col-xs-3'>
-                                        <input name="delete_player_name" id="delete_player" placeholder="Player Name" class="form-control">
-                                    </div>
+                                <select name="lb_choice" id="lb_choice" class="form-control">
+                                    {% for lb in leaderboards %}
+                                        <option value="{{lb[0]}}">{{lb[0]}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="col-xs-3">
                                     <button type="submit" class="btn btn-primary">Save</button>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div class="collapse" id="collapseNewLeaderboard">
+                    <div class="card card-body">
+                        <div class="form-inline">
+                            <label for="new_lb">New Leaderboard</label>
+                            <div class='col-xs-3'>
+                                <input name="new_lb_name" id="new_lb" placeholder="Leaderboard Name" class="form-control">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapse" id="collapseDeleteLeaderboard">
+                    <div class="card card-body">
+                        <div class="form-inline">
+                            <label for="delete_lb">Delete Leaderboard</label>
+                            <div class='col-xs-3'>
+                                <input name="delete_lb_name" id="delete_lb" placeholder="Leaderboard Name" class="form-control">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapse" id="collapseDeletePlayer">
+                    <div class="card card-body">
+                        <div class="form-inline">
+                            <label for="delete_player">Delete Player</label>
+                            <div class='col-xs-3'>
+                                <input name="delete_player_name" id="delete_player" placeholder="Player Name" class="form-control">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
                 {% include 'validation_error.html' %}
             </div>
-
         <div id="main">
         {% for lb in leaderboards %}
             <div class="leaderboard">
             <span style="position: relative; top: -80px; font-size: 150px;">&#x1F3C6;</span>
                 <h1 style="margin-top: -50px">{{lb[0]}}</h1>
-                    <div class="results">
-                        {% for player in lb[1] %}
-                            <div class="row">
-                                <div style="margin: 0; padding: 10; float:left;">{{player[1]}}</div>
-                                <div>{{player[0].name}}</div>
-                            </div>
-                        {% endfor %}
-                    </div>
+                <div class="results">
+                    {% for player in lb[1] %}
+                        <div class="row">
+                            <div style="margin: 0; padding: 10; float:left;">{{player[1]}}</div>
+                            <div>{{player[0].name}}</div>
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
         {% endfor %}
+        </div>
+    </div> 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
