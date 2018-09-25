@@ -34,13 +34,15 @@
         repo: 'https://github.com/junaid-iw/TableTennisLadder.git'
         dest: /home/ubuntu/TableTennisLadder
         version: flask
-
     - name: Install package requirements
       pip:
         requirements: /home/ubuntu/TableTennisLadder/requirements.txt
       become: yes
-
+    - name: Run Make Build
+      shell: make build
+        args:
+          chdir: /home/ubuntu/TableTennisLadder/main/
     - name: Start web server
-      shell: FLASK_APP=main.py FLASK_DEBUG=1 python -m flask run &
+      shell: make up
       args:
         chdir: /home/ubuntu/TableTennisLadder/main/
