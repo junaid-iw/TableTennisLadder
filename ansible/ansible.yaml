@@ -40,8 +40,8 @@
       become: yes
     - name: Run Make Build
       shell: make build
-        args:
-          chdir: /home/ubuntu/TableTennisLadder/main/
+      args:
+        chdir: /home/ubuntu/TableTennisLadder/main/
     - name: Start web server
       shell: make up
       args:
