@@ -1,0 +1,21 @@
+- name: Testing First Playbook
+  hosts: all
+  tasks:
+    - name: Ensure NGINX is installed
+      apt: name=nginx state=latest
+    - name: Copy NGINX config file
+      copy:
+        src: nginx.conf
+        dest: /etc/nginx/nginx.conf
+      become: yes
+    - name: start nginx
+      service:
+        name: nginx
+        state: started
+      become: yes
+    - name: Restart NGINX
+      service:
+        name: nginx
+        state: restarted
+      become: yes
+
