@@ -43,6 +43,6 @@
       args:
         chdir: /home/ubuntu/TableTennisLadder/main/
     - name: Start web server
-      shell: make up
+      shell: nohup make up
       args:
         chdir: /home/ubuntu/TableTennisLadder/main/
