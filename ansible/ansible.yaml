@@ -41,6 +41,6 @@
       become: yes
 
     - name: Start web server
-      shell: FLASK_APP=main.py FLASK_DEBUG=1 python -m flask run
+      shell: FLASK_APP=main.py FLASK_DEBUG=1 python -m flask run &
       args:
         chdir: /home/ubuntu/TableTennisLadder/main/
