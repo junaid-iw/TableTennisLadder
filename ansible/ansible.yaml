@@ -27,18 +27,20 @@
     - name: Ensure Python 2 is installed
       apt: name=python state=latest
     - name: Ensure PIP is insstalled
-      apt: name=python3-pip state=latest
-      become: yes
-    - name: Ensure Flask is installed
-      pip:
-        requirements: /home/ubuntu/TableTennisLadder/requirements.txt
+      apt: name=python-pip state=latest
       become: yes
     - name: Ensure git repository has been cloned
       git:
         repo: 'https://github.com/junaid-iw/TableTennisLadder.git'
         dest: /home/ubuntu/TableTennisLadder
         version: flask
+
+    - name: Install package requirements
+      pip:
+        requirements: /home/ubuntu/TableTennisLadder/requirements.txt
+      become: yes
+
     - name: Start web server
-      shell: make up
+      shell: FLASK_APP=main.py FLASK_DEBUG=1 python -m flask run
       args:
         chdir: /home/ubuntu/TableTennisLadder/main/
