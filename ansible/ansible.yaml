@@ -1,21 +1,60 @@
 - name: Testing First Playbook
   hosts: all
   tasks:
+    - name: Update and upgrade apt packages
+      become: true
+      apt:
+        upgrade: yes
+        update_cache: yes
+        cache_valid_time: 86400
+
     - name: Ensure NGINX is installed
       apt: name=nginx state=latest
+      become: yes
+
     - name: Copy NGINX config file
       copy:
         src: nginx.conf
         dest: /etc/nginx/nginx.conf
       become: yes
-    - name: start nginx
+
+    - name: Start NGINX
       service:
         name: nginx
         state: started
       become: yes
+
     - name: Restart NGINX
       service:
         name: nginx
         state: restarted
       become: yes
 
+    - name: Ensure Python 2 is installed
+      apt: name=python state=latest
+      become: yes
+
+    - name: Ensure PIP is insstalled
+      apt: name=python3-pip state=latest
+      become: yes
+
+    - name: Ensure git repository has been cloned
+      git:
+        repo: 'https://github.com/junaid-iw/TableTennisLadder.git'
+        dest: /home/ubuntu/TableTennisLadder
+        version: flask
+
+    - name: Install package requirements
+      pip:
+        requirements: /home/ubuntu/TableTennisLadder/requirements.txt
+      become: yes
+
+    - name: Run Make Build
+      shell: make build
+      args:
+        chdir: /home/ubuntu/TableTennisLadder/main/
+
+    - name: Start web server
+      shell: nohup make up
+      args:
+        chdir: /home/ubuntu/TableTennisLadder/main/
